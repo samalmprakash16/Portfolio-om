@@ -760,15 +760,23 @@ h4 {
 }
 
 .project-slider {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 360px));
+    display: flex;
     gap: 24px;
     padding: 10px 0;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    width: 100%;
+}
+
+.project-slider::-webkit-scrollbar {
+    display: none;
 }
 
 .project-card {
-    min-width: 0;
-    width: 100%;
+    flex: 0 0 360px;
+    min-width: 360px;
+    width: 360px;
     max-width: 360px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -1075,7 +1083,7 @@ h4 {
 }
 
 .project-slider-container .slider-btn {
-    display: none;
+    display: flex;
 }
 
 /* ==========================================================================
@@ -1367,8 +1375,9 @@ h4 {
     }
 
     .project-card {
-        min-width: 0;
-        max-width: 100%;
+        flex-basis: min(320px, calc(100vw - 64px));
+        min-width: min(320px, calc(100vw - 64px));
+        max-width: min(320px, calc(100vw - 64px));
     }
 
     .modal {
