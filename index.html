@@ -63,6 +63,8 @@
 
 <body>
 
+    <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+
 
 
     <!-- Navigation Header -->
@@ -95,6 +97,23 @@
 
             </nav>
 
+            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open navigation menu"
+                aria-expanded="false" aria-controls="mobileMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+                <a href="#home">Home</a>
+                <a href="#about">About Us</a>
+                <a href="#academics">Academics</a>
+                <a href="#achievements">Achievements</a>
+                <a href="#projects">Projects</a>
+                <a href="#upload">Upload Docs</a>
+                <a href="#contact">Contact</a>
+            </nav>
+
             <a href="#contact" class="btn btn-primary btn-sm">Get In Touch <i
                     class="fa-solid fa-arrow-up-right-from-square"></i></a>
 
@@ -106,7 +125,7 @@
 
     <!-- 1. HOME SECTION -->
 
-    <section id="home" class="hero">
+    <section id="home" class="hero fade-in-section">
 
         <div class="container hero-container">
 
@@ -118,9 +137,12 @@
 
                 </div>
 
+                <div class="availability-status"><span></span> Available for Projects &amp; Engineering Roles</div>
+
                 <h1 class="hero-title">
 
-                    Frontend & Visual Developer <span class="accent-text">Crafting Seamless Experiences.</span>
+                    Frontend &amp; <span class="typing-text" id="typingText">Visual Developer</span>
+                    <span class="accent-text">Crafting Seamless Experiences.</span>
 
                 </h1>
 
@@ -178,7 +200,7 @@
 
     <!-- 2. ABOUT US SECTION -->
 
-    <section id="about" class="about">
+    <section id="about" class="about fade-in-section">
 
         <div class="container">
 
@@ -247,7 +269,7 @@
 
     <!-- 3. ACADEMIC SECTION -->
 
-    <section id="academics" class="academics">
+    <section id="academics" class="academics fade-in-section">
 
         <div class="container">
 
@@ -405,7 +427,7 @@
 
     <!-- 4. COURSES & ACHIEVEMENTS SECTION -->
 
-    <section id="achievements" class="achievements">
+    <section id="achievements" class="achievements fade-in-section">
 
         <div class="container">
 
@@ -535,7 +557,7 @@
 
     <!-- DYNAMIC CV / ATTACHED DOCUMENTS GALLERY -->
 
-    <section id="cvDisplaySection" class="cv-display-section" style="display: none;">
+    <section id="cvDisplaySection" class="cv-display-section fade-in-section" style="display: none;">
 
         <div class="container">
 
@@ -587,7 +609,7 @@
 
     <!-- 5. FEATURED PROJECTS SECTION WITH GITHUB IMPORT -->
 
-    <section id="projects" class="projects">
+    <section id="projects" class="projects fade-in-section">
 
         <div class="container">
 
@@ -634,7 +656,7 @@
 
 
 
-            <!-- Project Cards Grid Slider -->
+            <!-- Bento Project Showcase -->
 
             <div class="project-slider-container">
 
@@ -642,7 +664,7 @@
 
 
 
-                <div class="project-slider" id="projectSlider">
+                <div class="project-slider bento-grid" id="projectSlider">
 
                     <div class="project-card">
 
@@ -785,6 +807,8 @@
 
             <div class="project-manager-list" id="projectManagerList"></div>
 
+            <div class="project-stats-card" id="projectStats" aria-live="polite"></div>
+
         </div>
 
     </section>
@@ -816,7 +840,7 @@
 
     <!-- 6. CATEGORIZED DOCUMENT UPLOADER SECTION -->
 
-    <section id="upload" class="upload-section">
+    <section id="upload" class="upload-section fade-in-section">
 
         <div class="container">
 
@@ -932,7 +956,7 @@
 
     <!-- 7. CONTACT & FOOTER -->
 
-    <footer id="contact" class="footer">
+    <footer id="contact" class="footer fade-in-section">
 
         <div class="container footer-content">
 
@@ -1056,6 +1080,39 @@
         </div>
 
     </div>
+
+    <!-- Floating AI Portfolio Assistant -->
+    <button class="ai-chat-toggle" id="aiChatToggle" type="button" aria-label="Open AI assistant" aria-expanded="false">
+        <i class="fa-solid fa-comment-dots"></i>
+        <span class="ai-chat-toggle-label">Ask AI</span>
+    </button>
+
+    <aside class="ai-chat-panel" id="aiChatPanel" aria-label="AI portfolio assistant" aria-hidden="true">
+        <div class="ai-chat-header">
+            <div>
+                <span class="ai-chat-status"><span></span> Online assistant</span>
+                <h2>Portfolio AI</h2>
+            </div>
+            <button class="ai-chat-close" id="aiChatClose" type="button" aria-label="Close AI assistant">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages" aria-live="polite">
+            <div class="ai-message ai-message-bot">Hi, I can help you explore projects, skills, and ways to get in touch.</div>
+        </div>
+
+        <div class="ai-quick-replies" aria-label="Suggested questions">
+            <button type="button" class="ai-quick-reply">View Projects</button>
+            <button type="button" class="ai-quick-reply">Skills</button>
+            <button type="button" class="ai-quick-reply">Contact</button>
+        </div>
+
+        <form class="ai-chat-form" id="aiChatForm">
+            <input id="aiChatInput" type="text" placeholder="Ask about this portfolio..." autocomplete="off" required>
+            <button type="submit" aria-label="Send message"><i class="fa-solid fa-arrow-up"></i></button>
+        </form>
+    </aside>
 
 
 

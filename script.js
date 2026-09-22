@@ -4,6 +4,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const getEl = (id) => document.getElementById(id);
     const getAll = (selector) => document.querySelectorAll(selector);
 
+    // Mobile navigation toggle
+    const mobileMenuToggle = getEl('mobileMenuToggle');
+    const mobileMenu = getEl('mobileMenu');
+
+    function closeMobileMenu() {
+        if (!mobileMenu || !mobileMenuToggle) return;
+        mobileMenu.classList.remove('is-open');
+        mobileMenuToggle.classList.remove('is-open');
+        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        mobileMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+    }
+
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.toggle('is-open');
+            mobileMenuToggle.classList.toggle('is-open', isOpen);
+            mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
+            mobileMenuToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        });
+
+        mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMobileMenu));
+    }
+
+    // Reveal sections as they enter the viewport, unless motion is disabled.
+    const revealSections = getAll('.fade-in-section');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    if (reducedMotionQuery.matches || !('IntersectionObserver' in window)) {
+        revealSections.forEach((section) => section.classList.add('is-visible'));
+    } else {
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px' });
+
+        revealSections.forEach((section) => sectionObserver.observe(section));
+    }
+
+    // Cycle through roles in the hero without animating for reduced-motion users.
+    const typingText = getEl('typingText');
+    const typingRoles = ['Visual Developer', 'Frontend Specialist', 'Android Creator'];
+    let typingRoleIndex = 0;
+    let typingCharacterIndex = 0;
+    let isDeletingTypingText = false;
+
+    function runTypingEffect() {
+        if (!typingText || reducedMotionQuery.matches) return;
+        const currentRole = typingRoles[typingRoleIndex];
+        typingCharacterIndex += isDeletingTypingText ? -1 : 1;
+        typingText.textContent = currentRole.slice(0, typingCharacterIndex);
+
+        if (!isDeletingTypingText && typingCharacterIndex === currentRole.length) {
+            isDeletingTypingText = true;
+            setTimeout(runTypingEffect, 1800);
+            return;
+        }
+
+        if (isDeletingTypingText && typingCharacterIndex === 0) {
+            isDeletingTypingText = false;
+            typingRoleIndex = (typingRoleIndex + 1) % typingRoles.length;
+        }
+
+        setTimeout(runTypingEffect, isDeletingTypingText ? 45 : 85);
+    }
+
+    if (typingText && !reducedMotionQuery.matches) setTimeout(runTypingEffect, 700);
+
+    // Keep the ambient spotlight and custom cursor on the compositor-friendly path.
+    const customCursor = getEl('customCursor');
+    let pointerFrame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+
+    if (customCursor && window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reducedMotionQuery.matches) {
+        document.addEventListener('mousemove', (event) => {
+            pointerX = event.clientX;
+            pointerY = event.clientY;
+            if (pointerFrame) return;
+            pointerFrame = requestAnimationFrame(() => {
+                customCursor.style.left = `${pointerX}px`;
+                customCursor.style.top = `${pointerY}px`;
+                document.documentElement.style.setProperty('--spotlight-x', `${pointerX}px`);
+                document.documentElement.style.setProperty('--spotlight-y', `${pointerY}px`);
+                customCursor.style.opacity = '1';
+                pointerFrame = 0;
+            });
+        });
+
+        document.querySelectorAll('a, button, .project-card').forEach((element) => {
+            element.addEventListener('mouseenter', () => customCursor.classList.add('is-active'));
+            element.addEventListener('mouseleave', () => customCursor.classList.remove('is-active'));
+        });
+    }
+
     // Track created Object URLs to prevent memory leaks
     const createdObjectUrls = new Set();
     const createSafeObjectURL = (file) => {
@@ -462,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let projects = Array.isArray(storedProjects) && storedProjects.length ? storedProjects : defaultProjects;
     const projectSlider = getEl('projectSlider');
     const projectManagerList = getEl('projectManagerList');
+    const projectStats = getEl('projectStats');
     const githubUrlInput = getEl('githubUrlInput');
     const importGithubBtn = getEl('importGithubBtn');
     const projectModal = getEl('projectModal');
@@ -474,17 +572,50 @@ document.addEventListener('DOMContentLoaded', () => {
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[character]));
 
-    const normalizeProject = (project) => ({
+    function getGithubOpenGraphUrl(githubUrl) {
+        const match = String(githubUrl || '').match(/github\.com\/([^/]+)\/([^/?#]+)/i);
+        return match ? `https://opengraph.githubassets.com/1/${match[1]}/${match[2].replace(/\.git$/, '')}` : '';
+    }
+
+    const normalizeProject = (project) => {
+        const githubUrl = project.githubUrl || project.repoUrl || '';
+        const techStack = Array.isArray(project.techStack)
+            ? project.techStack
+            : String(project.techStack || project.tags || '')
+                .split(',')
+                .map((technology) => technology.trim())
+                .filter(Boolean);
+
+        return {
         id: project.id || `project-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         title: project.title || 'Untitled Project',
         description: project.description || 'No description provided.',
-        techStack: Array.isArray(project.techStack) ? project.techStack : (project.tags || []).filter(Boolean),
+        techStack,
         liveDemoUrl: project.liveDemoUrl || '',
-        githubUrl: project.githubUrl || project.repoUrl || '',
-        imageUrl: project.imageUrl || project.image || '',
+        githubUrl,
+        imageUrl: project.imageUrl || project.image || getGithubOpenGraphUrl(githubUrl),
         isFeatured: project.isFeatured !== false
-    });
+        };
+    };
     projects = projects.map(normalizeProject);
+
+    function bindProjectTilt(card) {
+        const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        if (!supportsHover || reducedMotionQuery.matches) return;
+
+        card.addEventListener('mousemove', (event) => {
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left - rect.width / 2;
+            const y = event.clientY - rect.top - rect.height / 2;
+            card.style.transform = `perspective(1000px) rotateX(${-y / 22}deg) rotateY(${x / 22}deg) scale3d(1.015, 1.015, 1.015)`;
+            customCursor?.classList.add('is-active');
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+            customCursor?.classList.remove('is-active');
+        });
+    }
 
     function saveAndRenderProjects() {
         localStorage.setItem('user_featured_projects', JSON.stringify(projects));
@@ -508,12 +639,12 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        featuredProjects.forEach((proj) => {
+        featuredProjects.forEach((proj, projectIndex) => {
             const card = document.createElement('div');
-            card.className = 'project-card featured-project';
+            card.className = `project-card featured-project${projectIndex === 0 ? ' bento-card-large' : ''}`;
             card.style.position = 'relative';
             const tags = proj.techStack.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('');
-            const image = escapeHtml(proj.imageUrl || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`);
+            const image = escapeHtml(proj.imageUrl || getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`);
 
             card.innerHTML = `
                 <div class="project-admin-actions">
@@ -524,7 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div class="project-img-holder">
-                    <img src="${image}" alt="${escapeHtml(proj.title)}" onerror="this.src='https://via.placeholder.com/360x200/181c26/ffffff?text=Project'">
+                    <img src="${image}" alt="${escapeHtml(proj.title)}" onerror="this.onerror=null; this.src='${escapeHtml(getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`)}'">
                 </div>
                 <div class="project-info">
                     <span class="project-category">Featured Project</span>
@@ -541,7 +672,16 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             projectSlider.appendChild(card);
+            bindProjectTilt(card);
         });
+
+        if (projectStats) {
+            projectStats.innerHTML = `
+                <div class="project-stat"><strong>${projects.length}</strong> Projects Built</div>
+                <div class="project-stat"><strong>${featuredProjects.length}</strong> Featured</div>
+                <div class="project-stat"><strong>WEB + APP</strong> Core Focus</div>
+            `;
+        }
 
         if (projectManagerList) {
             projectManagerList.innerHTML = hiddenProjects.length ? `
@@ -786,6 +926,118 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // Floating AI assistant. Configure window.PORTFOLIO_AI_ENDPOINT on the backend host.
+    const aiChatToggle = getEl('aiChatToggle');
+    const aiChatPanel = getEl('aiChatPanel');
+    const aiChatClose = getEl('aiChatClose');
+    const aiChatMessages = getEl('aiChatMessages');
+    const aiChatForm = getEl('aiChatForm');
+    const aiChatInput = getEl('aiChatInput');
+    const aiChatEndpoint = window.PORTFOLIO_AI_ENDPOINT || '/api/chat';
+    const aiChatHistory = [];
+
+    function appendAiMessage(text, type, extraClass = '') {
+        const message = document.createElement('div');
+        message.className = `ai-message ai-message-${type} ${extraClass}`.trim();
+        message.textContent = text;
+        aiChatMessages.appendChild(message);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        return message;
+    }
+
+    function extractAiReply(payload) {
+        return payload?.reply || payload?.message || payload?.content || payload?.output ||
+            payload?.choices?.[0]?.message?.content || payload?.choices?.[0]?.text || '';
+    }
+
+    async function sendPortfolioChatMessage(messageText) {
+        const message = String(messageText || '').trim();
+        if (!message || !aiChatMessages) return;
+
+        appendAiMessage(message, 'user');
+        aiChatHistory.push({ role: 'user', content: message });
+        const loadingMessage = appendAiMessage('Thinking...', 'bot', 'ai-message-loading');
+        if (aiChatInput) aiChatInput.value = '';
+
+        try {
+            const response = await fetch(aiChatEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, messages: aiChatHistory })
+            });
+
+            if (!response.ok) throw new Error(`AI endpoint returned ${response.status}`);
+
+            const contentType = response.headers.get('content-type') || '';
+            let reply = '';
+
+            if (response.body && (contentType.includes('text/event-stream') || contentType.includes('text/plain'))) {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split(/\r?\n/).map((line) => line.replace(/^data:\s*/, '')).filter(Boolean);
+
+                    lines.forEach((line) => {
+                        if (line === '[DONE]') return;
+                        try {
+                            reply += extractAiReply(JSON.parse(line)) || '';
+                        } catch {
+                            reply += line;
+                        }
+                        loadingMessage.textContent = reply;
+                        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                    });
+                }
+            } else {
+                const payload = await response.json();
+                reply = extractAiReply(payload);
+            }
+
+            reply = reply.trim() || 'I received your message, but the assistant returned an empty response.';
+            loadingMessage.classList.remove('ai-message-loading');
+            loadingMessage.textContent = reply;
+            aiChatHistory.push({ role: 'assistant', content: reply });
+        } catch (error) {
+            loadingMessage.classList.remove('ai-message-loading');
+            loadingMessage.textContent = 'The AI assistant is not connected yet. Please try again later or use the Contact section.';
+            console.error('Portfolio AI request failed:', error);
+        }
+    }
+
+    window.sendPortfolioChatMessage = sendPortfolioChatMessage;
+
+    if (aiChatToggle && aiChatPanel) {
+        aiChatToggle.addEventListener('click', () => {
+            const isOpen = aiChatPanel.classList.toggle('is-open');
+            aiChatPanel.setAttribute('aria-hidden', String(!isOpen));
+            aiChatToggle.setAttribute('aria-expanded', String(isOpen));
+            if (isOpen) aiChatInput?.focus();
+        });
+    }
+
+    if (aiChatClose) {
+        aiChatClose.addEventListener('click', () => {
+            aiChatPanel?.classList.remove('is-open');
+            aiChatPanel?.setAttribute('aria-hidden', 'true');
+            aiChatToggle?.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    if (aiChatForm) {
+        aiChatForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            sendPortfolioChatMessage(aiChatInput?.value);
+        });
+    }
+
+    getAll('.ai-quick-reply').forEach((quickReply) => {
+        quickReply.addEventListener('click', () => sendPortfolioChatMessage(quickReply.textContent));
+    });
 
     // 11. CONTACT FORM HANDLER
     const contactForm = getEl('contactForm');
