@@ -3488,7 +3488,18 @@ textarea:-webkit-autofill:active {
 }
 
 .compact-card-link {
+    position: relative;
+    z-index: 1;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.compact-card-link:hover,
+.compact-card-link:focus,
+.compact-card-link:active {
+    transform: translateY(-2px);
+    border-color: #6366f1;
 }
 
 .compact-card-link:focus-visible {
