@@ -959,7 +959,11 @@ h4 {
     padding: 12px 14px 0;
 }
 
-.admin-only {
+.admin-only,
+.github-import-card,
+.projects-toolbar,
+.project-card .edit-btn,
+.project-card .delete-btn {
     display: none !important;
 }
 
@@ -972,6 +976,19 @@ body.is-admin .project-admin-actions.admin-only {
     display: flex !important;
 }
 
+body.is-admin .github-import-card.admin-only {
+    display: block !important;
+}
+
+body.is-admin .edit-project-btn.admin-only,
+body.is-admin .delete-project-btn.admin-only,
+body.is-admin .project-card .edit-btn,
+body.is-admin .project-card .delete-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
 body.is-admin div.github-import-card.admin-only,
 body.is-admin div.project-manager-list.admin-only {
     display: block !important;
@@ -979,6 +996,14 @@ body.is-admin div.project-manager-list.admin-only {
 
 body.is-admin .project-stats-card.admin-only {
     display: grid !important;
+}
+
+body.is-admin a.nav-link.admin-only {
+    display: inline-block !important;
+}
+
+body.is-admin .mobile-menu a.admin-only {
+    display: block !important;
 }
 
 body.is-admin .modal.admin-only,
@@ -2667,5 +2692,172 @@ body.is-admin .project-modal.show {
 @media (max-width: 600px) {
     #projectsSlider.project-grid {
         grid-template-columns: minmax(280px, 1fr) !important;
+    }
+}
+
+.project-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.compact-card {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    background: #0d1117;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.compact-card:hover {
+    transform: translateY(-2px);
+    border-color: #58a6ff;
+}
+
+.compact-card-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.repo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.repo-name {
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #58a6ff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.repo-name:hover {
+    text-decoration: underline;
+}
+
+.repo-badge {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    color: #8b949e;
+    font-size: 0.75rem;
+}
+
+.repo-desc {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0 0 16px;
+    color: #8b949e;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.repo-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 8px;
+    color: #8b949e;
+    font-size: 0.8rem;
+}
+
+.repo-lang-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+    border-radius: 50%;
+}
+
+.repo-index {
+    margin-left: auto;
+    color: #484f58;
+}
+
+.repo-admin-actions {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.repo-demo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #58a6ff;
+    text-decoration: none;
+}
+
+.repo-demo-link:hover {
+    text-decoration: underline;
+}
+
+.projects-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 28px;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+    font: inherit;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+}
+
+.pagination-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.page-indicator {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.projects-empty-state {
+    grid-column: 1 / -1;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .project-grid-compact {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

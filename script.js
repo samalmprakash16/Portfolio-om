@@ -17,6 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const getEl = (id) => document.getElementById(id);
     const getAll = (selector) => document.querySelectorAll(selector);
 
+    if (localStorage.getItem('userResumeUrl')?.startsWith('blob:')) {
+        localStorage.removeItem('userResumeUrl');
+    }
+
+    function syncResumeButton() {
+        const savedResumeUrl = localStorage.getItem('userResumeUrl') || 'assets/docs/resume.pdf';
+        const resumeButton = getEl('heroResumeBtn');
+        if (resumeButton) resumeButton.setAttribute('href', savedResumeUrl);
+    }
+
+    syncResumeButton();
+
     // Mobile navigation toggle
     const mobileMenuToggle = getEl('mobileMenuToggle');
     const mobileMenu = getEl('mobileMenu');
@@ -374,12 +386,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const certTitleInput = getEl('certTitleInput');
 
     let selectedFile = null;
+    const isAdminMode = () => document.body.classList.contains('is-admin') || localStorage.getItem('isAdmin') === 'true';
+    const denyPublicUpload = () => {
+        if (isAdminMode()) return false;
+        alert('Unauthorized action: Document uploads are restricted to the site owner.');
+        return true;
+    };
 
     if (dropZone && fileInput) {
-        if (browseBtn) browseBtn.addEventListener('click', () => fileInput.click());
+        if (browseBtn) browseBtn.addEventListener('click', (event) => {
+            if (denyPublicUpload()) {
+                event.preventDefault();
+                return;
+            }
+            fileInput.click();
+        });
 
         dropZone.addEventListener('click', (e) => {
             if (e.target === dropZone || e.target.closest('.drop-zone-content')) {
+                if (denyPublicUpload()) {
+                    e.preventDefault();
+                    return;
+                }
                 fileInput.click();
             }
         });
@@ -396,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
+            if (denyPublicUpload()) return;
             if (e.dataTransfer.files.length) {
                 handleFileSelection(e.dataTransfer.files[0]);
             }
@@ -403,12 +432,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length) {
+                if (denyPublicUpload()) {
+                    fileInput.value = '';
+                    return;
+                }
                 handleFileSelection(e.target.files[0]);
             }
         });
     }
 
     function handleFileSelection(file) {
+        if (denyPublicUpload()) return;
+
         const allowedTypes = [
             'application/pdf',
             'image/png',
@@ -457,11 +492,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (uploadSubmitBtn) {
         uploadSubmitBtn.addEventListener('click', () => {
+            if (denyPublicUpload()) return;
             if (!selectedFile) return;
 
             const category = docCategorySelect ? docCategorySelect.value : 'general';
             const fileUrl = createSafeObjectURL(selectedFile);
             const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+            if (category === 'resume') {
+                localStorage.setItem('userResumeUrl', fileUrl);
+                syncResumeButton();
+            }
 
             if ((category === 'resume' || category === 'general') && attachedDocsGrid) {
                 let iconClass = 'fa-file-pdf';
@@ -504,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     cvDisplaySection.scrollIntoView({ behavior: 'smooth' });
                 }
                 updateSelectionState();
-                alert(`"${selectedFile.name}" attached successfully!`);
+                alert(category === 'resume' ? 'Resume updated successfully!' : `"${selectedFile.name}" attached successfully!`);
             }
             else if ((category === 'courses' || category === 'sports') && achievementsGrid) {
                 const title = (certTitleInput && certTitleInput.value.trim()) ? certTitleInput.value.trim() : `${category === 'courses' ? 'Course' : 'Sports'} Certificate`;
@@ -544,46 +585,86 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectStorageKey = 'user_featured_projects';
     const defaultProjects = [
         {
-            id: 'rydex-platform',
-            title: 'RYDEX Management System',
-            description: 'Full-stack web application with a modern interface, responsive state management, and API connectivity.',
-            techStack: ['Next.js', 'CSS Modules', 'REST APIs'],
+            id: 'portfolio-om',
+            title: 'Portfolio-om',
+            description: 'Web application portfolio built with HTML, CSS, and JavaScript for deployment on Vercel.',
+            techStack: ['HTML', 'CSS', 'JavaScript'],
             liveDemoUrl: '',
-            githubUrl: '',
-            imageUrl: 'assets/images/project-1.png',
+            githubUrl: 'https://github.com/samalmprakash16/Portfolio-om',
+            language: 'CSS',
+            stars: 0,
+            forks: 0,
+            imageUrl: '',
             isFeatured: true
         },
         {
-            id: 'jarwise-tracker',
-            title: 'JarWise Expense Tracker',
-            description: 'Financial tracker featuring clean UI analytics, persistent local database, and customizable budgets.',
-            techStack: ['Kotlin', 'Jetpack Compose', 'SQLite'],
+            id: 'student-performance-dashboard',
+            title: 'student-performance-dashboard',
+            description: 'Interactive data analytics application using Python, Streamlit, and Pandas.',
+            techStack: ['Python', 'Streamlit', 'Pandas'],
             liveDemoUrl: '',
-            githubUrl: '',
-            imageUrl: 'assets/images/project-2.png',
+            githubUrl: 'https://github.com/samalmprakash16/student-performance-dashboard',
+            language: 'Python',
+            stars: 0,
+            forks: 0,
+            imageUrl: '',
+            isFeatured: true
+        },
+        {
+            id: 'intelligent-agent-robot-grid-navigation',
+            title: 'Intelligent-Agent-Robot-Grid-Navigation',
+            description: 'Python simulation of an intelligent robot agent navigating a 20x20 grid.',
+            techStack: ['Python'],
+            liveDemoUrl: '',
+            githubUrl: 'https://github.com/samalmprakash16/Intelligent-Agent-Robot-Grid-Navigation',
+            language: 'Python',
+            stars: 0,
+            forks: 0,
+            imageUrl: '',
+            isFeatured: true
+        },
+        {
+            id: 'jarwise',
+            title: 'JarWise',
+            description: 'Financial tracker featuring a clean UI, analytics, and a persistent local database.',
+            techStack: ['Kotlin'],
+            liveDemoUrl: '',
+            githubUrl: 'https://github.com/samalmprakash16/JarWise',
+            language: 'Kotlin',
+            stars: 0,
+            forks: 0,
+            imageUrl: '',
             isFeatured: true
         },
         {
             id: 'agridev-ecosystem',
-            title: 'AgriDev Ecosystem',
-            description: 'E-commerce and supply chain monitoring platform optimized for high data throughput and intuitive search.',
-            techStack: ['Spring Boot', 'MySQL', 'JavaScript'],
+            title: 'AgriDev-Ecosystem',
+            description: 'Digital agricultural platform for farm management and direct trade.',
+            techStack: ['Java'],
             liveDemoUrl: '',
-            githubUrl: '',
-            imageUrl: 'assets/images/project-3.png',
+            githubUrl: 'https://github.com/samalmprakash16/AgriDev-Ecosystem',
+            language: 'Java',
+            stars: 0,
+            forks: 0,
+            imageUrl: '',
             isFeatured: true
         }
     ];
     const storedProjects = JSON.parse(localStorage.getItem(projectStorageKey) || 'null');
     let projects = Array.isArray(storedProjects) && storedProjects.length ? storedProjects : defaultProjects;
-    const projectSlider = getEl('projectsSlider') || getEl('projectSlider');
+    const projectSlider = getEl('projectsContainer') || getEl('projectsSlider') || getEl('projectSlider');
     const projectManagerList = getEl('projectManagerList');
     const projectStats = getEl('projectStats');
-    const projectPagination = getEl('projectPagination');
+    const prevPageBtn = getEl('prevPageBtn');
+    const nextPageBtn = getEl('nextPageBtn');
+    const pageIndicator = getEl('pageIndicator');
     const projectPageSize = 4;
-    let projectPage = 0;
+    let projectPage = 1;
     const githubUrlInput = getEl('githubUrlInput');
     const importGithubBtn = getEl('importGithubBtn');
+    const isAdmin = isAdminMode();
+    if (githubUrlInput) githubUrlInput.disabled = !isAdmin;
+    if (importGithubBtn) importGithubBtn.disabled = !isAdmin;
     const projectModal = getEl('projectModal');
     const projectForm = getEl('projectForm');
     const projectModalTitle = getEl('projectModalTitle');
@@ -593,6 +674,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[character]));
+
+    const languageColors = {
+        JavaScript: '#f1e05a',
+        TypeScript: '#3178c6',
+        Python: '#3572A5',
+        Kotlin: '#A97BFF',
+        HTML: '#e34c26',
+        CSS: '#563d7c',
+        Java: '#b07219'
+    };
+
+    function getSafeExternalUrl(value) {
+        try {
+            const url = new URL(value);
+            return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : '';
+        } catch {
+            return '';
+        }
+    }
 
     function getGithubOpenGraphUrl(githubUrl) {
         const match = String(githubUrl || '').match(/github\.com\/([^/]+)\/([^/?#]+)/i);
@@ -613,9 +713,12 @@ document.addEventListener('DOMContentLoaded', () => {
         title: project.title || 'Untitled Project',
         description: project.description || 'No description provided.',
         techStack,
-        liveDemoUrl: project.liveDemoUrl || '',
+        liveDemoUrl: project.liveDemoUrl || project.demoUrl || '',
         githubUrl,
         imageUrl: project.imageUrl || project.image || getGithubOpenGraphUrl(githubUrl),
+        language: project.language || techStack[0] || 'Code',
+        stars: Number(project.stars) || 0,
+        forks: Number(project.forks) || 0,
         isFeatured: project.isFeatured !== false
         };
     };
@@ -641,65 +744,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveAndRenderProjects() {
         localStorage.setItem('user_featured_projects', JSON.stringify(projects));
+        projectPage = 1;
         renderProjects();
     }
 
     function renderProjects() {
         if (!projectSlider) return;
 
-        projectSlider.innerHTML = '';
         const featuredProjects = projects.filter((project) => project.isFeatured);
         const hiddenProjects = projects.filter((project) => !project.isFeatured);
-        const totalProjectPages = Math.max(1, Math.ceil(featuredProjects.length / projectPageSize));
-        projectPage = Math.min(projectPage, totalProjectPages - 1);
-        const visibleProjects = featuredProjects.slice(projectPage * projectPageSize, (projectPage + 1) * projectPageSize);
+        const totalProjects = featuredProjects.length;
+        const totalProjectPages = Math.max(1, Math.ceil(totalProjects / projectPageSize));
+        projectPage = Math.min(Math.max(projectPage, 1), totalProjectPages);
+        const startIndex = (projectPage - 1) * projectPageSize;
+        const endIndex = Math.min(startIndex + projectPageSize, totalProjects);
+        const visibleProjects = featuredProjects.slice(startIndex, endIndex);
 
-        if (featuredProjects.length === 0) {
-            projectSlider.innerHTML = `
-                <div class="empty-projects-state" style="text-align: center; width: 100%; padding: 40px 20px; color: #8a93a0;">
-                    <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 12px; color: var(--primary, #6366f1);"></i>
-                    <p style="font-size: 1.05rem; margin: 0; color: #fff;">No featured projects yet.</p>
-                    <small>Add a project or enable its featured status to display it here.</small>
-                </div>
-            `;
+        if (totalProjects === 0) {
+            projectSlider.innerHTML = '<p class="projects-empty-state">No projects available.</p>';
+        } else {
+            projectSlider.innerHTML = visibleProjects.map((project, index) => {
+                const language = project.language || 'Code';
+                const languageColor = languageColors[language] || '#6366f1';
+                const githubUrl = getSafeExternalUrl(project.githubUrl);
+                const demoUrl = getSafeExternalUrl(project.liveDemoUrl);
+                const repositoryName = githubUrl
+                    ? new URL(githubUrl).pathname.split('/').filter(Boolean).pop()?.replace(/\.git$/, '')
+                    : '';
+                const repoName = repositoryName || project.title;
+                const globalIndex = startIndex + index + 1;
+                const safeId = escapeHtml(project.id);
+                const repoLink = githubUrl
+                    ? `<a href="${escapeHtml(githubUrl)}" target="_blank" rel="noopener noreferrer" class="repo-name"><i class="fa-brands fa-github" aria-hidden="true"></i> ${escapeHtml(repoName)}</a>`
+                    : `<span class="repo-name">${escapeHtml(repoName)}</span>`;
+
+                return `
+                    <article class="compact-card">
+                        <div class="compact-card-main">
+                            <div class="repo-header">
+                                ${repoLink}
+                                <span class="repo-badge">${githubUrl ? 'Public' : 'Project'}</span>
+                            </div>
+                            <p class="repo-desc">${escapeHtml(project.description)}</p>
+                        </div>
+                        <div class="repo-meta">
+                            <span><span class="repo-lang-dot" style="background-color: ${languageColor}"></span>${escapeHtml(language)}</span>
+                            <span><i class="fa-regular fa-star" aria-hidden="true"></i> ${project.stars}</span>
+                            <span><i class="fa-solid fa-code-fork" aria-hidden="true"></i> ${project.forks}</span>
+                            <span class="repo-index">#${globalIndex}</span>
+                            ${demoUrl ? `<a class="repo-demo-link" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener noreferrer">Live Demo <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>` : ''}
+                            <span class="repo-admin-actions admin-only">
+                                <button type="button" class="icon-btn edit-project-btn admin-only" data-id="${safeId}" title="Edit project" aria-label="Edit ${escapeHtml(project.title)}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                                <button type="button" class="icon-btn delete-project-btn admin-only" data-id="${safeId}" title="Delete project" aria-label="Delete ${escapeHtml(project.title)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                            </span>
+                        </div>
+                    </article>`;
+            }).join('');
         }
 
-        visibleProjects.forEach((proj, projectIndex) => {
-            const card = document.createElement('div');
-            card.className = 'project-card featured-project';
-            card.style.position = 'relative';
-            const tags = proj.techStack.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('');
-            const image = escapeHtml(proj.imageUrl || getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`);
-
-            card.innerHTML = `
-                <div class="project-admin-actions admin-only">
-                    <span class="featured-status"><i class="fa-solid fa-star"></i> Featured</span>
-                    <div class="project-admin-buttons">
-                        <button class="icon-btn edit-project-btn" data-id="${escapeHtml(proj.id)}" title="Edit project"><i class="fa-solid fa-pen"></i></button>
-                        <button class="icon-btn delete-project-btn" data-id="${escapeHtml(proj.id)}" title="Delete project"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                </div>
-                <div class="project-img-holder">
-                    <div class="repo-card-preview">
-                        <img src="${image}" alt="${escapeHtml(proj.title)}" onerror="this.onerror=null; this.src='${escapeHtml(getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`)}'">
-                    </div>
-                </div>
-                <div class="project-info">
-                    <span class="project-category">Featured Project</span>
-                    <h3>${escapeHtml(proj.title)}</h3>
-                    <p>${escapeHtml(proj.description)}</p>
-                    <div class="project-tags">
-                        ${tags}
-                    </div>
-                    <div class="project-card-actions">
-                        ${proj.liveDemoUrl ? `<a class="btn btn-primary btn-sm" href="${escapeHtml(proj.liveDemoUrl)}" target="_blank" rel="noopener">Live Demo <i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
-                        ${proj.githubUrl ? `<a class="btn btn-outline btn-sm" href="${escapeHtml(proj.githubUrl)}" target="_blank" rel="noopener">GitHub <i class="fa-brands fa-github"></i></a>` : ''}
-                    </div>
-                </div>
-            `;
-
-            projectSlider.appendChild(card);
-        });
+        if (pageIndicator) {
+            pageIndicator.textContent = totalProjects === 0
+                ? 'No projects available'
+                : `Showing ${startIndex + 1}-${endIndex} of ${totalProjects} Projects`;
+        }
+        if (prevPageBtn) prevPageBtn.disabled = projectPage === 1;
+        if (nextPageBtn) nextPageBtn.disabled = projectPage >= totalProjectPages;
 
         if (projectStats) {
             projectStats.innerHTML = `
@@ -709,16 +818,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        if (projectPagination) {
-            projectPagination.innerHTML = totalProjectPages > 1 ? `
-                <button class="project-page-button" data-page="${projectPage - 1}" ${projectPage === 0 ? 'disabled' : ''} aria-label="Previous project page">&lsaquo;</button>
-                ${Array.from({ length: totalProjectPages }, (_, pageIndex) => `
-                    <button class="project-page-button ${pageIndex === projectPage ? 'is-active' : ''}" data-page="${pageIndex}" aria-label="Project page ${pageIndex + 1}">${pageIndex + 1}</button>
-                `).join('')}
-                <button class="project-page-button" data-page="${projectPage + 1}" ${projectPage === totalProjectPages - 1 ? 'disabled' : ''} aria-label="Next project page">&rsaquo;</button>
-            ` : '';
-        }
-
         if (projectManagerList) {
             projectManagerList.innerHTML = hiddenProjects.length ? `
                 <p class="project-manager-heading">Hidden projects</p>
@@ -726,8 +825,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="project-manager-row">
                         <span>${escapeHtml(project.title)}</span>
                         <div class="project-manager-actions">
-                            <button class="btn btn-outline btn-sm edit-project-btn" data-id="${escapeHtml(project.id)}">Edit / Feature</button>
-                            <button class="icon-btn delete-project-btn" data-id="${escapeHtml(project.id)}" title="Delete project"><i class="fa-solid fa-trash-can"></i></button>
+                            <button class="btn btn-outline btn-sm edit-project-btn admin-only" data-id="${escapeHtml(project.id)}">Edit / Feature</button>
+                            <button class="icon-btn delete-project-btn admin-only" data-id="${escapeHtml(project.id)}" title="Delete project"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </div>
                 `).join('')}
@@ -750,11 +849,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (projectPagination) {
-        projectPagination.addEventListener('click', (event) => {
-            const pageButton = event.target.closest('.project-page-button');
-            if (!pageButton || pageButton.disabled) return;
-            projectPage = Number(pageButton.dataset.page);
+    if (prevPageBtn) {
+        prevPageBtn.addEventListener('click', () => {
+            if (projectPage <= 1) return;
+            projectPage -= 1;
+            renderProjects();
+            projectSlider?.scrollIntoView({ behavior: reducedMotionQuery.matches ? 'auto' : 'smooth', block: 'nearest' });
+        });
+    }
+
+    if (nextPageBtn) {
+        nextPageBtn.addEventListener('click', () => {
+            const totalFeaturedProjects = projects.filter((project) => project.isFeatured).length;
+            if (projectPage * projectPageSize >= totalFeaturedProjects) return;
+            projectPage += 1;
             renderProjects();
             projectSlider?.scrollIntoView({ behavior: reducedMotionQuery.matches ? 'auto' : 'smooth', block: 'nearest' });
         });
@@ -814,6 +922,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Import from GitHub Handler
     if (importGithubBtn && githubUrlInput && projectSlider) {
         importGithubBtn.addEventListener('click', async () => {
+            if (!isAdminMode()) {
+                alert('Unauthorized action: Only the portfolio administrator can import projects.');
+                return;
+            }
+
             const urlValue = githubUrlInput.value.trim();
             if (!urlValue) {
                 alert('Please paste a valid GitHub Repository URL.');
@@ -1087,10 +1200,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // 11. CONTACT FORM HANDLER
     const contactForm = getEl('contactForm');
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Thank you! Your message has been sent successfully.');
-            contactForm.reset();
+
+            const emailConfig = window.PORTFOLIO_EMAILJS;
+            const isConfigured = window.emailjs && emailConfig &&
+                [emailConfig.publicKey, emailConfig.serviceId, emailConfig.notificationTemplateId, emailConfig.autoReplyTemplateId]
+                    .every((value) => value && !value.startsWith('YOUR_'));
+
+            if (!isConfigured) {
+                alert('The contact form is not configured yet. Please contact the site owner through another channel.');
+                return;
+            }
+
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const originalButtonContent = submitButton?.innerHTML;
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Sending...';
+            }
+
+            try {
+                await Promise.all([
+                    emailjs.sendForm(emailConfig.serviceId, emailConfig.notificationTemplateId, contactForm),
+                    emailjs.sendForm(emailConfig.serviceId, emailConfig.autoReplyTemplateId, contactForm)
+                ]);
+                alert('Message sent successfully! An auto-reply has been dispatched to your email.');
+                contactForm.reset();
+            } catch (error) {
+                console.error('EmailJS contact form error:', error);
+                alert(`Failed to send message: ${error?.text || error?.message || 'Please try again.'}`);
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonContent;
+                }
+            }
         });
     }
 
