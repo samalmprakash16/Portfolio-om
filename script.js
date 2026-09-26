@@ -1,5 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdminParam = urlParams.get('admin') === 'true';
+    const isAdminSaved = localStorage.getItem('isAdmin') === 'true';
+
+    if (isAdminParam) {
+        localStorage.setItem('isAdmin', 'true');
+    }
+
+    if (isAdminParam || isAdminSaved) {
+        document.body.classList.add('is-admin');
+        console.log('Admin Mode Enabled');
+    }
+
     // Helper Utility: Safe query selector wrapper
     const getEl = (id) => document.getElementById(id);
     const getAll = (selector) => document.querySelectorAll(selector);
@@ -136,19 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 1. HORIZONTAL PROJECT SLIDER CONTROLS
-    const slider = getEl('projectSlider');
-    const prevBtn = getEl('prevBtn');
-    const nextBtn = getEl('nextBtn');
+    const slider = getEl('projectsSlider') || getEl('projectSlider');
+    const prevBtn = getEl('slideLeftBtn') || getEl('prevBtn');
+    const nextBtn = getEl('slideRightBtn') || getEl('nextBtn');
 
     if (slider && prevBtn && nextBtn) {
-        const scrollAmount = 384;
+        const getScrollAmount = () => {
+            const firstCard = slider.querySelector('.project-card');
+            if (!firstCard) return 384;
+            const cardStyle = window.getComputedStyle(firstCard);
+            const gap = parseFloat(window.getComputedStyle(slider).columnGap || cardStyle.marginRight) || 24;
+            return firstCard.getBoundingClientRect().width + gap;
+        };
 
         nextBtn.addEventListener('click', () => {
-            slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            slider.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
         });
 
         prevBtn.addEventListener('click', () => {
-            slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            slider.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
         });
     }
 
@@ -557,9 +576,12 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     const storedProjects = JSON.parse(localStorage.getItem(projectStorageKey) || 'null');
     let projects = Array.isArray(storedProjects) && storedProjects.length ? storedProjects : defaultProjects;
-    const projectSlider = getEl('projectSlider');
+    const projectSlider = getEl('projectsSlider') || getEl('projectSlider');
     const projectManagerList = getEl('projectManagerList');
     const projectStats = getEl('projectStats');
+    const projectPagination = getEl('projectPagination');
+    const projectPageSize = 4;
+    let projectPage = 0;
     const githubUrlInput = getEl('githubUrlInput');
     const importGithubBtn = getEl('importGithubBtn');
     const projectModal = getEl('projectModal');
@@ -628,6 +650,9 @@ document.addEventListener('DOMContentLoaded', () => {
         projectSlider.innerHTML = '';
         const featuredProjects = projects.filter((project) => project.isFeatured);
         const hiddenProjects = projects.filter((project) => !project.isFeatured);
+        const totalProjectPages = Math.max(1, Math.ceil(featuredProjects.length / projectPageSize));
+        projectPage = Math.min(projectPage, totalProjectPages - 1);
+        const visibleProjects = featuredProjects.slice(projectPage * projectPageSize, (projectPage + 1) * projectPageSize);
 
         if (featuredProjects.length === 0) {
             projectSlider.innerHTML = `
@@ -639,15 +664,15 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        featuredProjects.forEach((proj, projectIndex) => {
+        visibleProjects.forEach((proj, projectIndex) => {
             const card = document.createElement('div');
-            card.className = `project-card featured-project${projectIndex === 0 ? ' bento-card-large' : ''}`;
+            card.className = 'project-card featured-project';
             card.style.position = 'relative';
             const tags = proj.techStack.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('');
             const image = escapeHtml(proj.imageUrl || getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`);
 
             card.innerHTML = `
-                <div class="project-admin-actions">
+                <div class="project-admin-actions admin-only">
                     <span class="featured-status"><i class="fa-solid fa-star"></i> Featured</span>
                     <div class="project-admin-buttons">
                         <button class="icon-btn edit-project-btn" data-id="${escapeHtml(proj.id)}" title="Edit project"><i class="fa-solid fa-pen"></i></button>
@@ -655,7 +680,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div class="project-img-holder">
-                    <img src="${image}" alt="${escapeHtml(proj.title)}" onerror="this.onerror=null; this.src='${escapeHtml(getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`)}'">
+                    <div class="repo-card-preview">
+                        <img src="${image}" alt="${escapeHtml(proj.title)}" onerror="this.onerror=null; this.src='${escapeHtml(getGithubOpenGraphUrl(proj.githubUrl) || `https://via.placeholder.com/360x200/181c26/ffffff?text=${encodeURIComponent(proj.title)}`)}'">
+                    </div>
                 </div>
                 <div class="project-info">
                     <span class="project-category">Featured Project</span>
@@ -672,7 +699,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             projectSlider.appendChild(card);
-            bindProjectTilt(card);
         });
 
         if (projectStats) {
@@ -681,6 +707,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="project-stat"><strong>${featuredProjects.length}</strong> Featured</div>
                 <div class="project-stat"><strong>WEB + APP</strong> Core Focus</div>
             `;
+        }
+
+        if (projectPagination) {
+            projectPagination.innerHTML = totalProjectPages > 1 ? `
+                <button class="project-page-button" data-page="${projectPage - 1}" ${projectPage === 0 ? 'disabled' : ''} aria-label="Previous project page">&lsaquo;</button>
+                ${Array.from({ length: totalProjectPages }, (_, pageIndex) => `
+                    <button class="project-page-button ${pageIndex === projectPage ? 'is-active' : ''}" data-page="${pageIndex}" aria-label="Project page ${pageIndex + 1}">${pageIndex + 1}</button>
+                `).join('')}
+                <button class="project-page-button" data-page="${projectPage + 1}" ${projectPage === totalProjectPages - 1 ? 'disabled' : ''} aria-label="Next project page">&rsaquo;</button>
+            ` : '';
         }
 
         if (projectManagerList) {
@@ -714,8 +750,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (projectPagination) {
+        projectPagination.addEventListener('click', (event) => {
+            const pageButton = event.target.closest('.project-page-button');
+            if (!pageButton || pageButton.disabled) return;
+            projectPage = Number(pageButton.dataset.page);
+            renderProjects();
+            projectSlider?.scrollIntoView({ behavior: reducedMotionQuery.matches ? 'auto' : 'smooth', block: 'nearest' });
+        });
+    }
+
     function closeProjectForm() {
-        if (projectModal) projectModal.style.display = 'none';
+        if (projectModal) projectModal.classList.remove('active');
         if (projectForm) projectForm.reset();
     }
 
@@ -740,7 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
         getEl('projectGithubUrlInput').value = project?.githubUrl || '';
         getEl('projectImageUrlInput').value = project?.imageUrl || '';
         getEl('projectFeaturedInput').checked = project ? project.isFeatured : true;
-        projectModal.style.display = 'flex';
+        projectModal.classList.add('active');
     }
 
     if (getEl('addProjectBtn')) getEl('addProjectBtn').addEventListener('click', () => openProjectForm());
@@ -927,15 +973,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Floating AI assistant. Configure window.PORTFOLIO_AI_ENDPOINT on the backend host.
+    // 9. AI CHATBOT INTERACTION LOGIC (Static / Rule-Based Assistant)
     const aiChatToggle = getEl('aiChatToggle');
     const aiChatPanel = getEl('aiChatPanel');
     const aiChatClose = getEl('aiChatClose');
     const aiChatMessages = getEl('aiChatMessages');
     const aiChatForm = getEl('aiChatForm');
     const aiChatInput = getEl('aiChatInput');
-    const aiChatEndpoint = window.PORTFOLIO_AI_ENDPOINT || '/api/chat';
-    const aiChatHistory = [];
+
+    function openAiChat() {
+        if (!aiChatPanel) {
+            console.error('Chatbot Error: #aiChatPanel element not found in DOM.');
+            return;
+        }
+
+        console.info('Portfolio AI: opening chat widget.');
+        aiChatPanel.classList.add('is-open');
+        aiChatPanel.style.display = 'flex';
+        aiChatPanel.setAttribute('aria-hidden', 'false');
+        aiChatToggle?.setAttribute('aria-expanded', 'true');
+        window.setTimeout(() => aiChatInput?.focus(), 100);
+    }
+
+    function closeAiChat() {
+        if (!aiChatPanel) return;
+
+        console.info('Portfolio AI: closing chat widget.');
+        aiChatPanel.classList.remove('is-open');
+        aiChatPanel.style.display = 'none';
+        aiChatPanel.setAttribute('aria-hidden', 'true');
+        aiChatToggle?.setAttribute('aria-expanded', 'false');
+    }
 
     function appendAiMessage(text, type, extraClass = '') {
         const message = document.createElement('div');
@@ -946,85 +1014,59 @@ document.addEventListener('DOMContentLoaded', () => {
         return message;
     }
 
-    function extractAiReply(payload) {
-        return payload?.reply || payload?.message || payload?.content || payload?.output ||
-            payload?.choices?.[0]?.message?.content || payload?.choices?.[0]?.text || '';
-    }
-
     async function sendPortfolioChatMessage(messageText) {
         const message = String(messageText || '').trim();
         if (!message || !aiChatMessages) return;
 
         appendAiMessage(message, 'user');
-        aiChatHistory.push({ role: 'user', content: message });
         const loadingMessage = appendAiMessage('Thinking...', 'bot', 'ai-message-loading');
         if (aiChatInput) aiChatInput.value = '';
 
-        try {
-            const response = await fetch(aiChatEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, messages: aiChatHistory })
-            });
+        window.setTimeout(() => {
+            const query = message.toLowerCase();
+            let reply;
 
-            if (!response.ok) throw new Error(`AI endpoint returned ${response.status}`);
-
-            const contentType = response.headers.get('content-type') || '';
-            let reply = '';
-
-            if (response.body && (contentType.includes('text/event-stream') || contentType.includes('text/plain'))) {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split(/\r?\n/).map((line) => line.replace(/^data:\s*/, '')).filter(Boolean);
-
-                    lines.forEach((line) => {
-                        if (line === '[DONE]') return;
-                        try {
-                            reply += extractAiReply(JSON.parse(line)) || '';
-                        } catch {
-                            reply += line;
-                        }
-                        loadingMessage.textContent = reply;
-                        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
-                    });
-                }
+            if (query.includes('project') || query.includes('work')) {
+                reply = 'Om Prakash has developed the RYDEX Management System, JarWise Expense Tracker, and AgriDev platform. Explore the Projects section to see them.';
+            } else if (query.includes('skill') || query.includes('tech') || query.includes('stack') || query.includes('language')) {
+                reply = 'Core skills include Next.js, JavaScript, Figma, Kotlin, Jetpack Compose, Spring Boot, MySQL, and UiPath automation.';
+            } else if (query.includes('contact') || query.includes('touch') || query.includes('email') || query.includes('hire') || query.includes('reach')) {
+                reply = 'You can get in touch through the Contact form at the bottom of this page.';
+            } else if (/\b(hi|hello|hey)\b/.test(query)) {
+                reply = "Hello! I'm Portfolio AI. How can I help you explore Om Prakash's work?";
             } else {
-                const payload = await response.json();
-                reply = extractAiReply(payload);
+                reply = `Thanks for asking about "${message}". Try asking about projects, skills, or contact information.`;
             }
 
-            reply = reply.trim() || 'I received your message, but the assistant returned an empty response.';
             loadingMessage.classList.remove('ai-message-loading');
             loadingMessage.textContent = reply;
-            aiChatHistory.push({ role: 'assistant', content: reply });
-        } catch (error) {
-            loadingMessage.classList.remove('ai-message-loading');
-            loadingMessage.textContent = 'The AI assistant is not connected yet. Please try again later or use the Contact section.';
-            console.error('Portfolio AI request failed:', error);
-        }
+            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }, 400);
     }
 
     window.sendPortfolioChatMessage = sendPortfolioChatMessage;
 
-    if (aiChatToggle && aiChatPanel) {
-        aiChatToggle.addEventListener('click', () => {
-            const isOpen = aiChatPanel.classList.toggle('is-open');
-            aiChatPanel.setAttribute('aria-hidden', String(!isOpen));
-            aiChatToggle.setAttribute('aria-expanded', String(isOpen));
-            if (isOpen) aiChatInput?.focus();
+    if (aiChatToggle) {
+        aiChatToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const isVisible = aiChatPanel && (
+                aiChatPanel.classList.contains('is-open') ||
+                window.getComputedStyle(aiChatPanel).display !== 'none'
+            );
+
+            if (isVisible) closeAiChat();
+            else openAiChat();
         });
+    } else {
+        console.warn('Chatbot Warning: #aiChatToggle button not found on page.');
     }
 
     if (aiChatClose) {
-        aiChatClose.addEventListener('click', () => {
-            aiChatPanel?.classList.remove('is-open');
-            aiChatPanel?.setAttribute('aria-hidden', 'true');
-            aiChatToggle?.setAttribute('aria-expanded', 'false');
+        aiChatClose.addEventListener('click', (event) => {
+            event.preventDefault();
+            closeAiChat();
         });
     }
 
@@ -1035,8 +1077,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    getAll('.ai-quick-reply').forEach((quickReply) => {
-        quickReply.addEventListener('click', () => sendPortfolioChatMessage(quickReply.textContent));
+    document.addEventListener('click', (event) => {
+        const quickReply = event.target.closest('.ai-quick-reply');
+        if (quickReply && quickReply.closest('#aiChatPanel')) {
+            sendPortfolioChatMessage(quickReply.textContent);
+        }
     });
 
     // 11. CONTACT FORM HANDLER
@@ -1054,3 +1099,8 @@ document.addEventListener('DOMContentLoaded', () => {
         createdObjectUrls.forEach(url => URL.revokeObjectURL(url));
     });
 });
+
+function logoutAdmin() {
+    localStorage.removeItem('isAdmin');
+    window.location.href = window.location.pathname;
+}
