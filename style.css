@@ -1429,15 +1429,28 @@ body.is-admin .project-modal.show {
 }
 
 .repo-github-btn {
+    position: relative;
+    z-index: 10;
     display: inline-flex;
-    flex: 0 0 34px;
+    flex: 0 0 40px;
+    min-width: 40px;
+    min-height: 40px;
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
     font-size: 0.9rem;
+    padding: 8px;
     text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(99, 102, 241, 0.3);
     touch-action: manipulation;
+    user-select: none;
+}
+
+.repo-github-btn i,
+.repo-github-btn svg {
+    color: #cbd5e1;
+    font-size: 1.25rem;
+    pointer-events: none;
 }
 
 .repo-github-btn:hover,
@@ -3544,6 +3557,7 @@ textarea:-webkit-autofill:active {
 .compact-card-link:focus-visible {
     outline: 2px solid #58a6ff;
     outline-offset: 3px;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
 }
 
 .compact-card-main {
@@ -3647,9 +3661,9 @@ textarea:-webkit-autofill:active {
 
 @media (max-width: 640px) {
     .repo-github-btn {
-        flex-basis: 38px;
-        width: 38px;
-        height: 38px;
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
         font-size: 0.95rem;
     }
 }

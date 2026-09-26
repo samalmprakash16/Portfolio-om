@@ -947,7 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : `<span class="repo-name">${escapeHtml(repoName)}</span>`;
 
                 return `
-                    <article class="compact-card${githubUrl ? ' compact-card-link' : ''}" ${githubUrl ? `tabindex="0" data-repo-url="${escapeHtml(githubUrl)}" aria-label="Open ${escapeHtml(repoName)} on GitHub"` : ''}>
+                    <article class="compact-card${githubUrl ? ' compact-card-link' : ''}" ${githubUrl ? `tabindex="0" data-repo-url="${escapeHtml(githubUrl)}" aria-label="Open ${escapeHtml(repoName)} on GitHub" aria-keyshortcuts="Enter Space"` : ''}>
                         <div class="compact-card-main">
                             <div class="repo-header">
                                 ${repoLink}
@@ -1007,6 +1007,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (projectSlider) {
+        projectSlider.addEventListener('click', (event) => {
+            if (event.target.closest('a.repo-github-btn')) event.stopPropagation();
+        }, true);
+
         projectSlider.addEventListener('click', (e) => {
             const cardLink = e.target.closest('.compact-card[data-repo-url]');
             if (cardLink && !e.target.closest('a, button')) {
