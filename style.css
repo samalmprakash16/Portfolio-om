@@ -548,11 +548,24 @@ h4 {
     color: var(--text-muted);
 }
 
+.doc-status.pending {
+    color: #ffb703;
+}
+
+.doc-status.uploaded {
+    color: #38b000;
+}
+
 .academic-actions {
     display: flex;
     gap: 10px;
     margin-top: 16px;
     align-items: center;
+}
+
+.academic-actions .view-doc-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .academic-upload-btn {
@@ -2731,6 +2744,15 @@ textarea:-webkit-autofill:active {
 .compact-card:hover {
     transform: translateY(-2px);
     border-color: #58a6ff;
+}
+
+.compact-card-link {
+    cursor: pointer;
+}
+
+.compact-card-link:focus-visible {
+    outline: 2px solid #58a6ff;
+    outline-offset: 3px;
 }
 
 .compact-card-main {

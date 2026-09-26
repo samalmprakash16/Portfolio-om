@@ -76,6 +76,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     syncResumeButton();
 
+    function updateDocumentStatuses(allowTemporaryUrls = false) {
+        ['10th', '12th'].forEach((grade) => {
+            const storageKey = `doc_${grade}`;
+            let documentUrl = localStorage.getItem(storageKey);
+
+            if (documentUrl?.startsWith('blob:') && !allowTemporaryUrls) {
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem(`${storageKey}_type`);
+                documentUrl = null;
+            }
+
+            const status = getEl(`status-${grade}`);
+            const viewButton = getEl(grade === '10th' ? 'view10thBtn' : 'view12thBtn');
+            const isUploaded = Boolean(documentUrl);
+
+            if (status) {
+                status.classList.toggle('uploaded', isUploaded);
+                status.classList.toggle('pending', !isUploaded);
+                status.innerHTML = isUploaded
+                    ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Status: Document Uploaded'
+                    : '<i class="fa-regular fa-clock" aria-hidden="true"></i> Status: Pending Upload';
+            }
+
+            if (viewButton) {
+                viewButton.disabled = !isUploaded;
+                if (isUploaded) {
+                    viewButton.setAttribute('data-doc', documentUrl);
+                    viewButton.setAttribute('data-doc-type', localStorage.getItem(`${storageKey}_type`) || '');
+                } else {
+                    viewButton.removeAttribute('data-doc');
+                    viewButton.removeAttribute('data-doc-type');
+                }
+            }
+        });
+    }
+
+    updateDocumentStatuses();
+
     // Mobile navigation toggle
     const mobileMenuToggle = getEl('mobileMenuToggle');
     const mobileMenu = getEl('mobileMenu');
@@ -248,7 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (modalTitle) modalTitle.textContent = docTitle;
 
-            const isPdf = docSrc.toLowerCase().includes('.pdf') ||
+            const isPdf = button.getAttribute('data-doc-type') === 'application/pdf' ||
+                docSrc.toLowerCase().includes('.pdf') ||
                 (docSrc.startsWith('blob:') && button.closest('.compact-doc-card')?.querySelector('.fa-file-pdf'));
 
             if (isPdf) {
@@ -546,7 +585,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileUrl = createSafeObjectURL(selectedFile);
             const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
 
-            if (category === 'resume') {
+            if (category === '10th' || category === '12th') {
+                localStorage.setItem(`doc_${category}`, fileUrl);
+                localStorage.setItem(`doc_${category}_type`, selectedFile.type);
+                updateDocumentStatuses(true);
+                alert(`${category} Grade Marksheet uploaded successfully!`);
+            } else if (category === 'resume') {
                 localStorage.setItem('userResumeUrl', fileUrl);
                 syncResumeButton();
             }
@@ -826,7 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : `<span class="repo-name">${escapeHtml(repoName)}</span>`;
 
                 return `
-                    <article class="compact-card">
+                    <article class="compact-card${githubUrl ? ' compact-card-link' : ''}" ${githubUrl ? `tabindex="0" data-repo-url="${escapeHtml(githubUrl)}" aria-label="Open ${escapeHtml(repoName)} on GitHub"` : ''}>
                         <div class="compact-card-main">
                             <div class="repo-header">
                                 ${repoLink}
@@ -883,6 +927,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (projectSlider) {
         projectSlider.addEventListener('click', (e) => {
+            const cardLink = e.target.closest('.compact-card[data-repo-url]');
+            if (cardLink && !e.target.closest('a, button')) {
+                window.open(cardLink.dataset.repoUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+
             const editBtn = e.target.closest('.edit-project-btn');
             const deleteBtn = e.target.closest('.delete-project-btn');
             if (editBtn) openProjectForm(editBtn.dataset.id);
@@ -893,6 +943,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveAndRenderProjects();
                 }
             }
+        });
+
+        projectSlider.addEventListener('keydown', (event) => {
+            const card = event.target.closest('.compact-card[data-repo-url]');
+            if (!card || event.target !== card || !['Enter', ' '].includes(event.key)) return;
+            event.preventDefault();
+            window.open(card.dataset.repoUrl, '_blank', 'noopener,noreferrer');
         });
     }
 

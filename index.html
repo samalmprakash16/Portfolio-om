@@ -298,14 +298,14 @@
                     <h3>10th Grade Marksheet</h3>
                     <p class="academic-institution">Secondary Education Board</p>
                     <div class="academic-details">
-                        <span class="status-10th"><i class="fa-solid fa-check-circle" style="color: #10b981;"
-                                aria-hidden="true"></i>
-                            Status: Document Uploaded</span>
+                        <span class="doc-status pending status-10th" id="status-10th">
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i> Status: Pending Upload
+                        </span>
                         <span><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Format: PDF/JPG</span>
                     </div>
                     <div class="academic-actions">
                         <button class="btn btn-outline btn-sm view-doc-btn" id="view10thBtn"
-                            data-doc="assets/docs/10th_marksheet.jpg" data-title="10th Grade Marksheet">
+                            data-doc="assets/docs/10th_marksheet.jpg" data-title="10th Grade Marksheet" disabled>
                             View <i class="fa-solid fa-expand" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -318,14 +318,14 @@
                     <h3>12th Grade Marksheet</h3>
                     <p class="academic-institution">Higher Secondary Council</p>
                     <div class="academic-details">
-                        <span class="status-12th"><i class="fa-solid fa-check-circle" style="color: #10b981;"
-                                aria-hidden="true"></i>
-                            Status: Document Uploaded</span>
+                        <span class="doc-status pending status-12th" id="status-12th">
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i> Status: Pending Upload
+                        </span>
                         <span><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Format: PDF/JPG</span>
                     </div>
                     <div class="academic-actions">
                         <button class="btn btn-outline btn-sm view-doc-btn" id="view12thBtn"
-                            data-doc="assets/docs/12th_marksheet.jpg" data-title="12th Grade Marksheet">
+                            data-doc="assets/docs/12th_marksheet.jpg" data-title="12th Grade Marksheet" disabled>
                             View <i class="fa-solid fa-expand" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -745,6 +745,10 @@
                         <option value="sports">Sports Achievement Certificate</option>
 
                         <option value="general">Other Document</option>
+
+                        <option value="10th">10th Grade Marksheet</option>
+
+                        <option value="12th">12th Grade Marksheet</option>
 
                     </select>
 
