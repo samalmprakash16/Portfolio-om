@@ -1203,6 +1203,15 @@ document.addEventListener('DOMContentLoaded', () => {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            if (!contactForm.checkValidity()) {
+                const invalidField = contactForm.querySelector(':invalid');
+                alert(invalidField?.type === 'email'
+                    ? 'Please enter a valid email address.'
+                    : 'Please complete your name, email, and message before sending.');
+                invalidField?.focus();
+                return;
+            }
+
             const emailConfig = window.PORTFOLIO_EMAILJS;
             const isConfigured = window.emailjs && emailConfig &&
                 [emailConfig.publicKey, emailConfig.serviceId, emailConfig.notificationTemplateId, emailConfig.autoReplyTemplateId]

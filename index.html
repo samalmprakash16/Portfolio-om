@@ -844,17 +844,17 @@
 
 
 
-            <form class="contact-form" id="contactForm">
+            <form class="contact-form" id="contactForm" novalidate>
 
                 <div class="form-group">
 
-                    <input type="text" name="name" id="senderName" placeholder="Your Name" autocomplete="name" required>
+                    <input type="text" name="from_name" id="senderName" placeholder="Your Name" autocomplete="name" required>
 
-                    <input type="email" name="email" id="senderEmail" placeholder="Your Email" autocomplete="email" required>
+                    <input type="email" name="from_email" id="senderEmail" placeholder="Your Email" autocomplete="email" required>
 
                 </div>
 
-                <input type="text" name="subject" id="senderSubject" placeholder="Subject" autocomplete="off" required>
+                <input type="text" name="subject" id="senderSubject" placeholder="Subject" autocomplete="off">
 
                 <textarea name="message" id="senderMessage" rows="5" placeholder="Your Message..." autocomplete="off" required></textarea>
 
