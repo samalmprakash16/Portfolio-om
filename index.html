@@ -848,17 +848,17 @@
 
                 <div class="form-group">
 
-                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="text" name="name" id="senderName" placeholder="Your Name" autocomplete="name" required>
 
-                    <input type="email" name="email" placeholder="Your Email" required>
+                    <input type="email" name="email" id="senderEmail" placeholder="Your Email" autocomplete="email" required>
 
                 </div>
 
-                <input type="text" name="subject" placeholder="Subject" required>
+                <input type="text" name="subject" id="senderSubject" placeholder="Subject" autocomplete="off" required>
 
-                <textarea name="message" rows="5" placeholder="Your Message..." required></textarea>
+                <textarea name="message" id="senderMessage" rows="5" placeholder="Your Message..." autocomplete="off" required></textarea>
 
-                <button type="submit" class="btn btn-primary">Send Message <i
+                <button type="submit" id="sendBtn" class="btn btn-primary">Send Message <i
                         class="fa-solid fa-paper-plane"></i></button>
 
             </form>
