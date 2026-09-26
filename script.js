@@ -1226,8 +1226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: getEl('senderName').value,
                 email: getEl('senderEmail').value,
                 subject: getEl('senderSubject').value,
-                message: getEl('senderMessage').value,
-                to_email: 'samalmprakash16@gmail.com'
+                message: getEl('senderMessage').value
             };
 
             const submitButton = contactForm.querySelector('button[type="submit"]');
