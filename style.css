@@ -1428,6 +1428,45 @@ body.is-admin .project-modal.show {
     cursor: pointer;
 }
 
+.repo-github-btn {
+    display: inline-flex;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.repo-github-btn:hover,
+.repo-github-btn:focus-visible,
+.repo-github-btn:active {
+    transform: translateY(-1px);
+    border-color: #3b82f6;
+    background: #3b82f6;
+    color: #fff;
+}
+
+.repo-github-btn:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+.repo-github-btn.is-unavailable {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.repo-github-btn.is-unavailable:hover,
+.repo-github-btn.is-unavailable:active {
+    transform: none;
+    border-color: var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+}
+
 .icon-btn:hover {
     color: var(--primary);
     border-color: var(--primary);
@@ -3602,7 +3641,17 @@ textarea:-webkit-autofill:active {
 
 .repo-admin-actions {
     display: inline-flex;
+    align-items: center;
     gap: 6px;
+}
+
+@media (max-width: 640px) {
+    .repo-github-btn {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
+    }
 }
 
 .repo-demo-link {

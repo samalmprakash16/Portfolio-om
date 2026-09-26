@@ -962,6 +962,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span><i class="fa-solid fa-code-fork" aria-hidden="true"></i> ${project.forks}</span>
                             <span class="repo-index">#${globalIndex}</span>
                             ${demoUrl ? `<a class="repo-demo-link" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener noreferrer">Live Preview <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>` : ''}
+                            ${githubUrl
+                                ? `<a class="icon-btn repo-github-btn" href="${escapeHtml(githubUrl)}" target="_blank" rel="noopener noreferrer" title="Open GitHub Repository" aria-label="Open ${escapeHtml(repoName)} on GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i></a>`
+                                : `<button type="button" class="icon-btn repo-github-btn is-unavailable" title="Add a GitHub URL to enable this button" aria-label="GitHub repository URL not configured" disabled><i class="fa-brands fa-github" aria-hidden="true"></i></button>`}
                             <span class="repo-admin-actions admin-only">
                                 <button type="button" class="icon-btn edit-project-btn admin-only" data-id="${safeId}" title="Edit project" aria-label="Edit ${escapeHtml(project.title)}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
                                 <button type="button" class="icon-btn delete-project-btn admin-only" data-id="${safeId}" title="Delete project" aria-label="Delete ${escapeHtml(project.title)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
