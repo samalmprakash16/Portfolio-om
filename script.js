@@ -1116,20 +1116,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const urlValue = githubUrlInput.value.trim();
-            if (!urlValue) {
+            const cleanUrl = githubUrlInput.value.trim();
+            if (!cleanUrl) {
                 alert('Please paste a valid GitHub Repository URL.');
                 return;
             }
 
-            const match = urlValue.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-            if (!match) {
+            let parsedGithubUrl;
+            try {
+                parsedGithubUrl = new URL(cleanUrl);
+            } catch {
                 alert('Invalid GitHub URL format. Example: https://github.com/username/repository');
                 return;
             }
 
-            const owner = match[1];
-            const repo = match[2].replace(/\.git$/, '');
+            const pathParts = parsedGithubUrl.pathname.split('/').filter(Boolean);
+            if (parsedGithubUrl.hostname !== 'github.com' || pathParts.length < 2) {
+                alert('Invalid GitHub URL format. Example: https://github.com/username/repository');
+                return;
+            }
+
+            const owner = pathParts[0];
+            const repo = pathParts[1].replace(/\.git$/, '');
+            if (!owner || !repo) {
+                alert('Invalid GitHub URL format. Example: https://github.com/username/repository');
+                return;
+            }
 
             importGithubBtn.disabled = true;
             importGithubBtn.innerHTML = 'Fetching API... <i class="fa-solid fa-spinner fa-spin"></i>';
@@ -1150,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ? repoData.topics.slice(0, 3)
                         : [repoData.language || 'Code'],
                     liveDemoUrl: '',
-                    githubUrl: repoData.html_url,
+                    githubUrl: cleanUrl,
                     imageUrl: `https://opengraph.githubassets.com/1/${owner}/${repo}`,
                     isFeatured: true
                 };
