@@ -299,11 +299,11 @@ h4 {
     white-space: nowrap;
 }
 
-.code-tag {
-    color: var(--primary);
-    font-family: monospace;
-    font-size: 1.2rem;
-    font-weight: 800;
+.logo-img {
+    display: block;
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .nav-actions {
@@ -867,107 +867,119 @@ h4 {
 }
 
 /* ==========================================================================
-   Academics Section
-   ========================================================================== */
-.academics {
-    padding: 80px 0;
-    background: rgba(255, 255, 255, 0.01);
+  Academic Qualifications
+  ========================================================================== */
+.academics-section {
+   padding: 80px 0;
+   background: rgba(255, 255, 255, 0.01);
 }
 
-.academic-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
+.academics-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+   gap: 24px;
+   margin-top: 32px;
 }
 
 .academic-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    padding: 32px;
-    border-radius: 12px;
-    position: relative;
-    transition: var(--transition);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+   display: flex;
+   min-width: 0;
+   flex-direction: column;
+   overflow: hidden;
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   border-radius: 16px;
+   background: rgba(18, 18, 24, 0.8);
+   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .academic-card:hover {
-    border-color: var(--primary);
-    transform: translateY(-5px);
+   transform: translateY(-3px);
+   border-color: rgba(99, 102, 241, 0.4);
 }
 
-.academic-card.highlight {
-    border-color: rgba(88, 101, 242, 0.4);
-    background: linear-gradient(180deg, var(--bg-card) 0%, rgba(88, 101, 242, 0.05) 100%);
+.card-banner {
+   position: relative;
+   width: 100%;
+   height: 180px;
+   overflow: hidden;
+   background: #0f172a;
 }
 
-.card-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-muted);
-    margin-bottom: 16px;
+.banner-img {
+   display: block;
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
 }
 
-.card-badge.active-badge {
-    background: rgba(88, 101, 242, 0.15);
-    color: var(--primary);
+.card-banner .card-badge {
+   position: absolute;
+   top: 12px;
+   left: 12px;
+   margin: 0;
+   padding: 6px 14px;
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   border-radius: 20px;
+   background: rgba(15, 23, 42, 0.85);
+   backdrop-filter: blur(8px);
+   color: #818cf8;
+   font-size: 0.75rem;
+   font-weight: 600;
 }
 
-.academic-icon {
-    font-size: 2.2rem;
-    color: var(--primary);
-    margin-bottom: 16px;
-    display: block;
+.card-content {
+   display: flex;
+   flex: 1;
+   flex-direction: column;
+   padding: 20px;
 }
 
-.academic-institution {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 16px;
+.degree-title {
+   margin: 0 0 4px;
+   color: #fff;
+   font-size: 1.1rem;
+   font-weight: 700;
+}
+
+.institution-name {
+   margin: 0;
+   color: #94a3b8;
+   font-size: 0.9rem;
+   font-weight: 500;
+}
+
+.institution-location {
+   margin: 4px 0 16px;
+   color: #64748b;
+   font-size: 0.8rem;
+}
+
+.institution-location i {
+   margin-right: 4px;
+   color: var(--primary);
 }
 
 .academic-details {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 24px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   margin-top: auto;
+   padding-top: 12px;
+   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.doc-status.pending {
-    color: #ffb703;
+.academic-details p {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   margin: 0;
+   color: #cbd5e1;
+   font-size: 0.85rem;
 }
 
-.doc-status.uploaded {
-    color: #38b000;
-}
-
-.academic-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 16px;
-    align-items: center;
-}
-
-.academic-actions .view-doc-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.academic-upload-btn {
-    margin: 0;
-    cursor: pointer;
-}
-
-.academic-actions .btn {
-    flex: 1;
-    justify-content: center;
+.academic-details i {
+   color: #818cf8;
+   font-size: 0.85rem;
 }
 
 /* ==========================================================================
@@ -2462,7 +2474,6 @@ textarea:-webkit-autofill:active {
 
     .project-card-actions,
     .project-form-actions,
-    .academic-actions,
     .hero-actions,
     .resume-actions {
         flex-wrap: wrap;

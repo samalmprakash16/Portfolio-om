@@ -10,7 +10,7 @@
 
     <title>Om Prakash Samal | Portfolio</title>
 
-
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <!-- SEO Meta Tags -->
 
@@ -100,7 +100,8 @@
         <div class="container nav-container">
 
             <a href="#home" class="nav-logo">
-                <span class="code-tag">&lt;/&gt;</span> OM PRAKASH
+                <img src="favicon.png" alt="" class="logo-img">
+                <span>OM PRAKASH</span>
             </a>
 
             <div class="nav-actions">
@@ -184,7 +185,7 @@
                     </a>
 
                     <a href="#academics" class="btn btn-outline">View Academics <i
-                            class="fa-solid fa-graduation-cap"></i></a>
+                            class="fa-solid fa-graduation-cap" aria-hidden="true"></i></a>
 
                 </div>
 
@@ -441,73 +442,67 @@
 
 
 
-    <!-- 3. ACADEMIC SECTION -->
-    <section id="academics" class="academics fade-in-section">
+    <section id="academics" class="academics-section fade-in-section">
         <div class="container">
             <div class="section-header">
                 <span class="sub-heading">— EDUCATION &amp; MARKSHEETS</span>
                 <h2>Academic Qualifications</h2>
             </div>
 
-            <div class="academic-grid">
-                <!-- 10th Marksheet Card -->
-                <div class="academic-card">
-                    <div class="card-badge">Secondary</div>
-                    <i class="fa-solid fa-school academic-icon" aria-hidden="true"></i>
-                    <h3>10th Grade Marksheet</h3>
-                    <p class="academic-institution">Secondary Education Board</p>
-                    <div class="academic-details">
-                        <span class="doc-status pending status-10th" id="status-10th">
-                            <i class="fa-regular fa-clock" aria-hidden="true"></i> Status: Pending Upload
-                        </span>
-                        <span><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Format: PDF/JPG</span>
+            <div class="academics-grid">
+                <article class="academic-card">
+                    <div class="card-banner">
+                        <img src="claret.png" alt="St. Claret School" class="banner-img" loading="lazy">
+                        <span class="card-badge">Secondary</span>
                     </div>
-                    <div class="academic-actions">
-                        <button class="btn btn-outline btn-sm view-doc-btn" id="view10thBtn"
-                            data-doc="assets/docs/10th_marksheet.jpg" data-title="10th Grade Marksheet" disabled>
-                            View <i class="fa-solid fa-expand" aria-hidden="true"></i>
-                        </button>
+                    <div class="card-content">
+                        <h3 class="degree-title">10th Grade (Secondary)</h3>
+                        <p class="institution-name">St. Claret School</p>
+                        <p class="institution-location">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Butibori, Nagpur
+                        </p>
+                        <div class="academic-details">
+                            <p><i class="fa-regular fa-calendar-check" aria-hidden="true"></i> Passed in 2022</p>
+                            <p><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Score: 62%</p>
+                        </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- 12th Marksheet Card -->
-                <div class="academic-card">
-                    <div class="card-badge">Higher Secondary</div>
-                    <i class="fa-solid fa-building-columns academic-icon" aria-hidden="true"></i>
-                    <h3>12th Grade Marksheet</h3>
-                    <p class="academic-institution">Higher Secondary Council</p>
-                    <div class="academic-details">
-                        <span class="doc-status pending status-12th" id="status-12th">
-                            <i class="fa-regular fa-clock" aria-hidden="true"></i> Status: Pending Upload
-                        </span>
-                        <span><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Format: PDF/JPG</span>
+                <article class="academic-card">
+                    <div class="card-banner">
+                        <img src="tapovan.png" alt="Tapovan International School" class="banner-img" loading="lazy">
+                        <span class="card-badge">Higher Secondary</span>
                     </div>
-                    <div class="academic-actions">
-                        <button class="btn btn-outline btn-sm view-doc-btn" id="view12thBtn"
-                            data-doc="assets/docs/12th_marksheet.jpg" data-title="12th Grade Marksheet" disabled>
-                            View <i class="fa-solid fa-expand" aria-hidden="true"></i>
-                        </button>
+                    <div class="card-content">
+                        <h3 class="degree-title">12th Grade (Commerce)</h3>
+                        <p class="institution-name">Tapovan International School</p>
+                        <p class="institution-location">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Mehsana, Gujarat
+                        </p>
+                        <div class="academic-details">
+                            <p><i class="fa-regular fa-calendar-check" aria-hidden="true"></i> Passed in 2024</p>
+                            <p><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Score: 71%</p>
+                        </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- BCA Degree Card -->
-                <div class="academic-card highlight">
-                    <div class="card-badge active-badge">Undergraduate</div>
-                    <i class="fa-solid fa-user-graduate academic-icon" aria-hidden="true"></i>
-                    <h3>Bachelor of Computer Applications (BCA)</h3>
-                    <p class="academic-institution">Christ University</p>
-                    <div class="academic-details">
-                        <span class="status-bca"><i class="fa-regular fa-calendar" aria-hidden="true"></i> In
-                            Progress</span>
-                        <span><i class="fa-solid fa-laptop-code" aria-hidden="true"></i> Computer Science</span>
+                <article class="academic-card">
+                    <div class="card-banner">
+                        <img src="christ.png" alt="CHRIST University" class="banner-img" loading="lazy">
+                        <span class="card-badge">Undergraduate</span>
                     </div>
-                    <div class="academic-actions">
-                        <button class="btn btn-primary btn-sm view-doc-btn" data-doc="assets/docs/bca_transcript.jpg"
-                            data-title="BCA Academic Transcript">
-                            View Marks <i class="fa-solid fa-expand" aria-hidden="true"></i>
-                        </button>
+                    <div class="card-content">
+                        <h3 class="degree-title">Bachelor of Computer Applications (BCA)</h3>
+                        <p class="institution-name">CHRIST University</p>
+                        <p class="institution-location">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Lavasa, Pune
+                        </p>
+                        <div class="academic-details">
+                            <p><i class="fa-regular fa-calendar-check" aria-hidden="true"></i> 3rd Year (Passing 2027)</p>
+                            <p><i class="fa-solid fa-desktop" aria-hidden="true"></i> Computer Science</p>
+                        </div>
                     </div>
-                </div>
+                </article>
             </div>
         </div>
     </section>
@@ -935,10 +930,6 @@
                         <option value="sports">Sports Achievement Certificate</option>
 
                         <option value="general">Other Document</option>
-
-                        <option value="10th">10th Grade Marksheet</option>
-
-                        <option value="12th">12th Grade Marksheet</option>
 
                     </select>
 

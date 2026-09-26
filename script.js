@@ -93,44 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     syncResumeButton();
 
-    function updateDocumentStatuses(allowTemporaryUrls = false) {
-        ['10th', '12th'].forEach((grade) => {
-            const storageKey = `doc_${grade}`;
-            let documentUrl = localStorage.getItem(storageKey);
-
-            if (documentUrl?.startsWith('blob:') && !allowTemporaryUrls) {
-                localStorage.removeItem(storageKey);
-                localStorage.removeItem(`${storageKey}_type`);
-                documentUrl = null;
-            }
-
-            const status = getEl(`status-${grade}`);
-            const viewButton = getEl(grade === '10th' ? 'view10thBtn' : 'view12thBtn');
-            const isUploaded = Boolean(documentUrl);
-
-            if (status) {
-                status.classList.toggle('uploaded', isUploaded);
-                status.classList.toggle('pending', !isUploaded);
-                status.innerHTML = isUploaded
-                    ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Status: Document Uploaded'
-                    : '<i class="fa-regular fa-clock" aria-hidden="true"></i> Status: Pending Upload';
-            }
-
-            if (viewButton) {
-                viewButton.disabled = !isUploaded;
-                if (isUploaded) {
-                    viewButton.setAttribute('data-doc', documentUrl);
-                    viewButton.setAttribute('data-doc-type', localStorage.getItem(`${storageKey}_type`) || '');
-                } else {
-                    viewButton.removeAttribute('data-doc');
-                    viewButton.removeAttribute('data-doc-type');
-                }
-            }
-        });
-    }
-
-    updateDocumentStatuses();
-
     // Mobile navigation toggle
     const mobileMenuToggle = getEl('mobileMenuToggle');
     const mobileMenu = getEl('mobileMenu');
@@ -389,41 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. DIRECT MARKSHEET UPLOADER HANDLER (10th, 12th, BCA)
-    getAll('.direct-marksheet-input').forEach(input => {
-        input.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            const cardType = input.getAttribute('data-card') || 'Academic';
-
-            if (!file) return;
-
-            const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
-            if (!validTypes.includes(file.type)) {
-                alert('Please select a valid image (JPG, PNG) or PDF document.');
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) {
-                alert('File size exceeds 10MB limit.');
-                return;
-            }
-
-            const tempUrl = createSafeObjectURL(file);
-            const card = input.closest('.academic-card');
-            if (card) {
-                const viewBtn = card.querySelector('.view-doc-btn');
-                if (viewBtn) viewBtn.setAttribute('data-doc', tempUrl);
-
-                const statusSpan = card.querySelector(`.status-${cardType.toLowerCase()}`);
-                if (statusSpan) {
-                    statusSpan.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Uploaded: ${file.name.substring(0, 16)}...`;
-                }
-            }
-
-            alert(`${cardType} Marksheet "${file.name}" uploaded successfully!`);
-        });
-    });
-
     // 4. ACHIEVEMENT TAB FILTERING & INDIVIDUAL DELETION
     const tabBtns = getAll('.tab-btn');
     const achievementsGrid = getEl('achievementsGrid');
@@ -658,12 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileUrl = createSafeObjectURL(selectedFile);
             const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
 
-            if (category === '10th' || category === '12th') {
-                localStorage.setItem(`doc_${category}`, fileUrl);
-                localStorage.setItem(`doc_${category}_type`, selectedFile.type);
-                updateDocumentStatuses(true);
-                alert(`${category} Grade Marksheet uploaded successfully!`);
-            } else if (category === 'resume') {
+            if (category === 'resume') {
                 localStorage.setItem('userResumeUrl', fileUrl);
                 localStorage.setItem('userResumeUrl_type', selectedFile.type);
                 syncResumeButton();
