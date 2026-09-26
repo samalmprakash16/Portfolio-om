@@ -1222,6 +1222,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const templateParams = {
+                name: getEl('senderName').value,
+                email: getEl('senderEmail').value,
+                subject: getEl('senderSubject').value,
+                message: getEl('senderMessage').value,
+                to_email: 'samalmprakash16@gmail.com'
+            };
+
             const submitButton = contactForm.querySelector('button[type="submit"]');
             const originalButtonContent = submitButton?.innerHTML;
             if (submitButton) {
@@ -1231,14 +1239,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 await Promise.all([
-                    emailjs.sendForm(emailConfig.serviceId, emailConfig.notificationTemplateId, contactForm),
-                    emailjs.sendForm(emailConfig.serviceId, emailConfig.autoReplyTemplateId, contactForm)
+                    emailjs.send(emailConfig.serviceId, emailConfig.notificationTemplateId, templateParams),
+                    emailjs.send(emailConfig.serviceId, emailConfig.autoReplyTemplateId, templateParams)
                 ]);
                 alert('Message sent successfully! An auto-reply has been dispatched to your email.');
                 contactForm.reset();
             } catch (error) {
                 console.error('EmailJS contact form error:', error);
-                alert(`Failed to send message: ${error?.text || error?.message || 'Please try again.'}`);
+                alert(`Failed to send message: ${error?.text || error?.message || JSON.stringify(error) || 'Please try again.'}`);
             } finally {
                 if (submitButton) {
                     submitButton.disabled = false;
