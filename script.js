@@ -66,12 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (localStorage.getItem('userResumeUrl')?.startsWith('blob:')) {
         localStorage.removeItem('userResumeUrl');
+        localStorage.removeItem('userResumeUrl_type');
     }
 
     function syncResumeButton() {
-        const savedResumeUrl = localStorage.getItem('userResumeUrl') || 'assets/docs/resume.pdf';
+        const storedResumeUrl = localStorage.getItem('userResumeUrl');
+        const savedResumeUrl = storedResumeUrl || 'assets/docs/resume.pdf';
+        const savedResumeType = storedResumeUrl
+            ? localStorage.getItem('userResumeUrl_type') ||
+                (savedResumeUrl.toLowerCase().includes('.pdf') ? 'application/pdf' : '')
+            : 'application/pdf';
         const resumeButton = getEl('heroResumeBtn');
+        const resumePreviewButton = getEl('openResumeModal');
+        const resumeDownloadButton = getEl('resumeDownloadBtn');
+        const contactResumeLink = getEl('contactResumeLink');
         if (resumeButton) resumeButton.setAttribute('href', savedResumeUrl);
+        if (resumePreviewButton) {
+            resumePreviewButton.setAttribute('data-doc', savedResumeUrl);
+            resumePreviewButton.setAttribute('data-doc-type', savedResumeType);
+            resumePreviewButton.disabled = savedResumeType !== 'application/pdf' &&
+                !savedResumeType.startsWith('image/');
+        }
+        if (resumeDownloadButton) resumeDownloadButton.setAttribute('href', savedResumeUrl);
+        if (contactResumeLink) contactResumeLink.setAttribute('href', savedResumeUrl);
     }
 
     syncResumeButton();
@@ -153,6 +170,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { threshold: 0.12, rootMargin: '0px 0px -40px' });
 
         revealSections.forEach((section) => sectionObserver.observe(section));
+    }
+
+    const statsContainer = document.querySelector('.stats-container');
+    const statCounters = statsContainer ? statsContainer.querySelectorAll('.counter') : [];
+    const setCounterValue = (counter, value) => {
+        const decimals = Number.parseInt(counter.dataset.decimals || '0', 10);
+        counter.textContent = value.toFixed(decimals);
+    };
+    const showCounterTargets = () => {
+        statCounters.forEach((counter) => {
+            const target = Number.parseFloat(counter.dataset.target || '');
+            if (Number.isFinite(target)) setCounterValue(counter, target);
+        });
+    };
+
+    if (statsContainer && statCounters.length) {
+        if (reducedMotionQuery.matches || !('IntersectionObserver' in window)) {
+            showCounterTargets();
+        } else {
+            const statsObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+
+                    statCounters.forEach((counter) => {
+                        const target = Number.parseFloat(counter.dataset.target || '');
+                        if (!Number.isFinite(target)) return;
+
+                        const duration = 2000;
+                        const startTime = performance.now();
+                        const animate = (currentTime) => {
+                            const progress = Math.min((currentTime - startTime) / duration, 1);
+                            const easedProgress = 1 - Math.pow(1 - progress, 3);
+                            setCounterValue(counter, target * easedProgress);
+
+                            if (progress < 1) {
+                                window.requestAnimationFrame(animate);
+                            } else {
+                                setCounterValue(counter, target);
+                            }
+                        };
+
+                        window.requestAnimationFrame(animate);
+                    });
+
+                    observer.unobserve(entry.target);
+                });
+            }, { threshold: 0.3 });
+
+            statsObserver.observe(statsContainer);
+        }
     }
 
     // Cycle through roles in the hero without animating for reduced-motion users.
@@ -314,6 +381,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('click', (e) => {
         if (e.target === docModal) closeDocumentModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && docModal?.style.display === 'flex') {
+            closeDocumentModal();
+        }
     });
 
     // 3. DIRECT MARKSHEET UPLOADER HANDLER (10th, 12th, BCA)
@@ -592,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`${category} Grade Marksheet uploaded successfully!`);
             } else if (category === 'resume') {
                 localStorage.setItem('userResumeUrl', fileUrl);
+                localStorage.setItem('userResumeUrl_type', selectedFile.type);
                 syncResumeButton();
             }
 
@@ -1315,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const invalidField = contactForm.querySelector(':invalid');
                 alert(invalidField?.type === 'email'
                     ? 'Please enter a valid email address.'
-                    : 'Please complete your name, email, and message before sending.');
+                    : 'Please complete your name, email, subject, and message before sending.');
                 invalidField?.focus();
                 return;
             }

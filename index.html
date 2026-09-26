@@ -99,27 +99,30 @@
 
         <div class="container nav-container">
 
-            <a href="#home" class="logo">
-
-                <i class="fa-solid fa-code"></i> <span>OM PRAKASH</span>
-
+            <a href="#home" class="nav-logo">
+                <span class="code-tag">&lt;/&gt;</span> OM PRAKASH
             </a>
 
-            <nav class="nav-links">
+            <div class="nav-actions">
+                <nav class="nav-links" aria-label="Main navigation">
+                    <a href="#home" class="nav-link active">Home</a>
 
-                <a href="#home" class="nav-link active">Home</a>
+                    <a href="#about" class="nav-link">About Us</a>
 
-                <a href="#about" class="nav-link">About Us</a>
+                    <a href="#experience" class="nav-link">Experience</a>
 
-                <a href="#academics" class="nav-link">Academics</a>
+                    <a href="#academics" class="nav-link">Academics</a>
 
-                <a href="#achievements" class="nav-link">Achievements</a>
+                    <a href="#achievements" class="nav-link">Achievements</a>
 
-                <a href="#projects" class="nav-link">Projects</a>
+                    <a href="#projects" class="nav-link">Projects</a>
 
-                <a href="#contact" class="nav-link">Contact</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                </nav>
 
-            </nav>
+                <a href="#contact" class="btn btn-primary btn-sm">Get In Touch <i
+                        class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
 
             <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open navigation menu"
                 aria-expanded="false" aria-controls="mobileMenu">
@@ -131,14 +134,12 @@
             <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
                 <a href="#home" class="nav-link">Home</a>
                 <a href="#about" class="nav-link">About Us</a>
+                <a href="#experience" class="nav-link">Experience</a>
                 <a href="#academics" class="nav-link">Academics</a>
                 <a href="#achievements" class="nav-link">Achievements</a>
                 <a href="#projects" class="nav-link">Projects</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </nav>
-
-            <a href="#contact" class="btn btn-primary btn-sm">Get In Touch <i
-                    class="fa-solid fa-arrow-up-right-from-square"></i></a>
 
         </div>
 
@@ -221,6 +222,41 @@
 
 
 
+    <section class="ticker-banner" aria-label="Areas of expertise">
+        <div class="ticker-track">
+            <div class="ticker-group">
+                <span class="ticker-item">Frontend Engineering</span>
+                <span class="ticker-dot" aria-hidden="true">•</span>
+                <span class="ticker-item">Java Backend</span>
+                <span class="ticker-dot" aria-hidden="true">•</span>
+                <span class="ticker-item">Android &amp; Kotlin</span>
+                <span class="ticker-dot" aria-hidden="true">•</span>
+                <span class="ticker-item">RPA Automation</span>
+                <span class="ticker-dot" aria-hidden="true">•</span>
+                <span class="ticker-item">Performance First</span>
+                <span class="ticker-dot" aria-hidden="true">•</span>
+                <span class="ticker-item">Continuous Learning</span>
+                <span class="ticker-dot" aria-hidden="true">•</span>
+            </div>
+            <div class="ticker-group" aria-hidden="true">
+                <span class="ticker-item">Frontend Engineering</span>
+                <span class="ticker-dot">•</span>
+                <span class="ticker-item">Java Backend</span>
+                <span class="ticker-dot">•</span>
+                <span class="ticker-item">Android &amp; Kotlin</span>
+                <span class="ticker-dot">•</span>
+                <span class="ticker-item">RPA Automation</span>
+                <span class="ticker-dot">•</span>
+                <span class="ticker-item">Performance First</span>
+                <span class="ticker-dot">•</span>
+                <span class="ticker-item">Continuous Learning</span>
+                <span class="ticker-dot">•</span>
+            </div>
+        </div>
+    </section>
+
+
+
     <!-- Watermark Background -->
 
     <div class="watermark-text">PORTFOLIO</div>
@@ -292,6 +328,115 @@
 
         </div>
 
+    </section>
+
+
+
+    <section id="stats" class="stats-section fade-in-section" aria-label="Portfolio statistics">
+        <div class="container">
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fa-solid fa-rocket"></i></div>
+                    <div class="stat-number-wrapper">
+                        <span class="counter" data-target="4" data-decimals="0">0</span><span class="suffix">+</span>
+                    </div>
+                    <p class="stat-label">Projects Built</p>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="stat-number-wrapper">
+                        <span class="counter" data-target="10" data-decimals="0">0</span><span class="suffix">+</span>
+                    </div>
+                    <p class="stat-label">Technologies Learned</p>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fa-solid fa-briefcase"></i></div>
+                    <div class="stat-number-wrapper">
+                        <span class="counter" data-target="2" data-decimals="0">0</span>
+                    </div>
+                    <p class="stat-label">Internships</p>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="stat-number-wrapper">
+                        <span class="counter" data-target="2.14" data-decimals="2">0.00</span><span
+                            class="suffix">/4</span>
+                    </div>
+                    <p class="stat-label">Academic GPA</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="experience" class="experience-section fade-in-section">
+        <div class="experience-container">
+            <header class="experience-header">
+                <span class="section-tag">EXPERIENCE</span>
+                <h2 class="experience-section-title">Real Projects<br>Internship</h2>
+            </header>
+
+            <div class="timeline-container">
+                <article class="experience-card">
+                    <div class="experience-card-header">
+                        <div class="company-info">
+                            <img src="mady.png" alt="Mady Solutions logo" class="company-logo" loading="lazy">
+                            <div>
+                                <h3 class="company-name">Mady Solutions</h3>
+                                <p class="role-title">Data Scraping &amp; Data Analyst Intern</p>
+                            </div>
+                        </div>
+                        <span class="duration-badge">May 2026 — Aug 2026 · 3 mos</span>
+                    </div>
+
+                    <p class="location-text"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Ghaziabad,
+                        Uttar Pradesh</p>
+
+                    <ul class="experience-details">
+                        <li>
+                            <i class="fa-solid fa-database" aria-hidden="true"></i>
+                            <span>Collected data from business firms and structured raw data into datasets.</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+                            <span>Analyzed dataset metrics through Excel Pivot Tables for better strategic
+                                decision-making.</span>
+                        </li>
+                    </ul>
+                </article>
+
+                <article class="experience-card">
+                    <div class="experience-card-header">
+                        <div class="company-info">
+                            <img src="dnnovate.png" alt="Dnnovate Pvt Ltd logo" class="company-logo" loading="lazy">
+                            <div>
+                                <h3 class="company-name">Dnnovate Pvt Ltd</h3>
+                                <p class="role-title">UI/UX Intern</p>
+                            </div>
+                        </div>
+                        <span class="duration-badge">Jun 2025 — Aug 2025 · 2 mos</span>
+                    </div>
+
+                    <p class="location-text"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Nagpur,
+                        Maharashtra</p>
+
+                    <ul class="experience-details">
+                        <li>
+                            <i class="fa-brands fa-figma" aria-hidden="true"></i>
+                            <span>Designed a complete website from scratch in Figma for Bhushan Car Shop.</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-paintbrush" aria-hidden="true"></i>
+                            <span>Created interactive UI wireframes, user flows, and brand design components.</span>
+                        </li>
+                    </ul>
+                </article>
+            </div>
+        </div>
     </section>
 
 
@@ -481,6 +626,37 @@
         </div>
 
     </section>
+
+    <section id="resume" class="resume-section fade-in-section">
+        <span class="section-tag">RESUME</span>
+
+        <div class="resume-card">
+            <div class="resume-left">
+                <div class="resume-icon-box" aria-hidden="true">
+                    <i class="fa-regular fa-file-lines"></i>
+                </div>
+                <div class="resume-info">
+                    <h2 class="resume-title">Om Prakash Samal — Resume</h2>
+                    <p class="resume-description">
+                        A snapshot of my experience, projects, and technical skills. Preview it or download the PDF.
+                    </p>
+                </div>
+            </div>
+
+            <div class="resume-actions">
+                <button type="button" class="btn-preview view-doc-btn" id="openResumeModal"
+                    data-doc="assets/docs/resume.pdf" data-doc-type="application/pdf"
+                    data-title="Om Prakash Samal — Resume Preview">
+                    <i class="fa-regular fa-eye" aria-hidden="true"></i> Preview
+                </button>
+                <a href="assets/docs/resume.pdf" download="Om_Prakash_Samal_Resume.pdf" class="btn-download"
+                    id="resumeDownloadBtn">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i> Download Resume
+                </a>
+            </div>
+        </div>
+    </section>
+
 
 
 
@@ -844,71 +1020,100 @@
 
 
 
-    <!-- 7. CONTACT & FOOTER -->
+    <!-- 7. CONTACT SECTION -->
+    <section id="contact" class="contact-section fade-in-section">
+        <div class="contact-container">
+            <div class="contact-left">
+                <span class="section-tag">CONTACT</span>
+                <h2 class="contact-heading">
+                    Interested in working<br><span class="highlight-blue">together?</span>
+                </h2>
+                <p class="contact-subtext">
+                    I'm currently open to software-engineering opportunities, internships, freelance work, and
+                    interesting collaborations. Drop a message and I'll respond quickly.
+                </p>
 
-    <footer id="contact" class="footer bottom-navbar fade-in-section">
+                <div class="quick-links" aria-label="Contact links">
+                    <a href="mailto:samalprakash160@gmail.com" class="quick-card">
+                        <span class="contact-card-icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
+                        <span class="card-text">
+                            <span class="card-label">Email</span>
+                            <span class="card-value">samalprakash160@gmail.com</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon" aria-hidden="true"></i>
+                    </a>
 
-        <div class="container footer-content">
+                    <a href="https://github.com/samalmprakash16" target="_blank" rel="noopener noreferrer"
+                        class="quick-card">
+                        <span class="contact-card-icon" aria-hidden="true"><i class="fa-brands fa-github"></i></span>
+                        <span class="card-text">
+                            <span class="card-label">GitHub</span>
+                            <span class="card-value">@samalmprakash16</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon" aria-hidden="true"></i>
+                    </a>
 
-            <div class="section-header">
+                    <a href="https://www.linkedin.com/in/om-prakash-samal/" target="_blank" rel="noopener noreferrer"
+                        class="quick-card">
+                        <span class="contact-card-icon" aria-hidden="true"><i class="fa-brands fa-linkedin-in"></i></span>
+                        <span class="card-text">
+                            <span class="card-label">LinkedIn</span>
+                            <span class="card-value">in/om-prakash-samal</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon" aria-hidden="true"></i>
+                    </a>
 
-                <span class="sub-heading">— GET IN TOUCH</span>
-
-                <h2>Let's build something scalable together.</h2>
-
-            </div>
-
-            <p>Feel free to reach out for collaborations, software inquiries, or document verification.</p>
-
-            <form class="contact-form" id="contactForm" novalidate>
-
-                <div class="form-group">
-
-                    <input type="text" name="from_name" id="senderName" placeholder="Your Name" autocomplete="name" required>
-
-                    <input type="email" name="from_email" id="senderEmail" placeholder="Your Email" autocomplete="email" required>
-
+                    <a href="assets/docs/resume.pdf" id="contactResumeLink" download="Om_Prakash_Samal_Resume.pdf"
+                        class="quick-card">
+                        <span class="contact-card-icon" aria-hidden="true"><i class="fa-regular fa-file-lines"></i></span>
+                        <span class="card-text">
+                            <span class="card-label">Resume</span>
+                            <span class="card-value">Download PDF</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon" aria-hidden="true"></i>
+                    </a>
                 </div>
-
-                <input type="text" name="subject" id="senderSubject" placeholder="Subject" autocomplete="off">
-
-                <textarea name="message" id="senderMessage" rows="5" placeholder="Your Message..." autocomplete="off" required></textarea>
-
-                <button type="submit" id="sendBtn" class="btn btn-primary btn-send">Send Message <i
-                        class="fa-solid fa-paper-plane"></i></button>
-
-            </form>
-
-
-
-            <div class="footer-contact-wrapper" aria-label="Direct contact links">
-                <a href="mailto:samalprakash160@gmail.com" class="footer-contact-item">
-                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-                    <span><strong>Email:</strong> samalprakash160@gmail.com</span>
-                </a>
-                <a href="https://www.linkedin.com/in/om-prakash-samal/" target="_blank" rel="noopener noreferrer" class="footer-contact-item">
-                    <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
-                    <span><strong>LinkedIn:</strong> linkedin.com/in/om-prakash-samal</span>
-                </a>
-                <a href="https://github.com/samalmprakash16" target="_blank" rel="noopener noreferrer" class="footer-contact-item">
-                    <i class="fa-brands fa-github" aria-hidden="true"></i>
-                    <span><strong>GitHub:</strong> github.com/samalmprakash16</span>
-                </a>
             </div>
 
-            <p class="copyright-text">&copy; Om Prakash Samal. All rights reserved.</p>
+            <div class="contact-form-card">
+                <form class="contact-form" id="contactForm" novalidate>
+                    <div class="contact-form-row">
+                        <div class="contact-field">
+                            <label for="senderName">Name</label>
+                            <input type="text" name="from_name" id="senderName" placeholder="Ada Lovelace"
+                                autocomplete="name" required>
+                        </div>
+                        <div class="contact-field">
+                            <label for="senderEmail">Email</label>
+                            <input type="email" name="from_email" id="senderEmail" placeholder="you@email.com"
+                                autocomplete="email" required>
+                        </div>
+                    </div>
 
-            <button type="button" id="adminLoginBtn" class="admin-access-link">Admin Access</button>
+                    <div class="contact-field">
+                        <label for="senderSubject">Subject</label>
+                        <input type="text" name="subject" id="senderSubject" placeholder="What's this about?"
+                            autocomplete="off" required>
+                    </div>
 
+                    <div class="contact-field">
+                        <label for="senderMessage">Message</label>
+                        <textarea name="message" id="senderMessage" rows="5"
+                            placeholder="Tell me about your project or opportunity..." autocomplete="off"
+                            required></textarea>
+                    </div>
+
+                    <button type="submit" id="sendBtn" class="btn-submit">
+                        <i class="fa-regular fa-paper-plane" aria-hidden="true"></i> Send Message
+                    </button>
+                </form>
+            </div>
         </div>
-
-    </footer>
-
-
+    </section>
 
     <!-- UNIVERSAL DOCUMENT PREVIEW MODAL (PDF + IMAGES) -->
 
-    <div class="modal" id="documentModal">
+    <div class="modal" id="documentModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 
         <div class="modal-content">
 
@@ -1016,6 +1221,48 @@
         </form>
     </aside>
 
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <h2 class="footer-name">Om Prakash Samal<span class="dot-accent">.</span></h2>
+                    <p class="footer-tagline">
+                        Visual &amp; Frontend Developer specializing in React, Next.js, and Android. Building fast,
+                        scalable, user-focused software.
+                    </p>
+                </div>
+
+                <nav class="footer-socials" aria-label="Social links">
+                    <a href="https://github.com/samalmprakash16" target="_blank" rel="noopener noreferrer"
+                        aria-label="GitHub">
+                        <i class="fa-brands fa-github" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/om-prakash-samal/" target="_blank" rel="noopener noreferrer"
+                        aria-label="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+                    </a>
+                    <a href="mailto:samalprakash160@gmail.com" aria-label="Email">
+                        <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                    </a>
+                </nav>
+            </div>
+
+            <hr class="footer-divider">
+
+            <div class="footer-bottom">
+                <p class="footer-disclaimer">
+                    Contact form submissions are processed to respond to inquiries. Please avoid including sensitive
+                    personal information.
+                </p>
+                <div class="footer-meta">
+                    <span class="tech-stack">Built with HTML, CSS &amp; JavaScript.</span>
+                    <span class="footer-credit">Designed &amp; developed by <strong>Om Prakash Samal</strong>
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
+                </div>
+                <button type="button" id="adminLoginBtn" class="admin-access-link">Admin Access</button>
+            </div>
+        </div>
+    </footer>
 
 
     <!-- Custom Script -->
