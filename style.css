@@ -972,11 +972,7 @@ h4 {
     padding: 12px 14px 0;
 }
 
-.admin-only,
-.github-import-card,
-.projects-toolbar,
-.project-card .edit-btn,
-.project-card .delete-btn {
+.admin-only {
     display: none !important;
 }
 
@@ -989,14 +985,8 @@ body.is-admin .project-admin-actions.admin-only {
     display: flex !important;
 }
 
-body.is-admin .github-import-card.admin-only {
-    display: block !important;
-}
-
 body.is-admin .edit-project-btn.admin-only,
-body.is-admin .delete-project-btn.admin-only,
-body.is-admin .project-card .edit-btn,
-body.is-admin .project-card .delete-btn {
+body.is-admin .delete-project-btn.admin-only {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
@@ -1011,7 +1001,7 @@ body.is-admin .project-stats-card.admin-only {
     display: grid !important;
 }
 
-body.is-admin a.nav-link.admin-only {
+body.is-admin .nav-links a.admin-only {
     display: inline-block !important;
 }
 
@@ -1371,7 +1361,47 @@ body.is-admin .project-modal.show {
 .footer-content {
     max-width: 700px;
     margin: 0 auto;
-    text-align: center;
+    text-align: left;
+}
+
+.footer-contact-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.footer-contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-contact-item i {
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.footer-contact-item strong {
+    color: #ffffff;
+}
+
+.footer-contact-item:hover,
+.footer-contact-item:focus-visible {
+    transform: translateX(4px);
+    color: #a5b4fc;
+}
+
+.footer-contact-item:focus-visible,
+.admin-access-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
 }
 
 .contact-form {
@@ -1423,6 +1453,27 @@ textarea:-webkit-autofill:active {
 .copyright {
     color: var(--text-muted);
     font-size: 0.85rem;
+}
+
+.copyright-text {
+    width: 100%;
+    margin-top: 1.5rem;
+    color: #64748b;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.admin-access-link {
+    display: block;
+    margin-top: 0.25rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #475569;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    text-align: left;
 }
 
 /* Modals */
@@ -2808,6 +2859,22 @@ textarea:-webkit-autofill:active {
     line-clamp: 2;
 }
 
+.project-tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 14px;
+}
+
+.project-tech-tag {
+    padding: 3px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    line-height: 1.4;
+}
+
 .repo-meta {
     display: flex;
     align-items: center;
@@ -2883,7 +2950,6 @@ textarea:-webkit-autofill:active {
 .page-indicator {
     color: var(--text-muted);
     font-size: 0.9rem;
-    font-weight: 500;
 }
 
 .projects-empty-state {

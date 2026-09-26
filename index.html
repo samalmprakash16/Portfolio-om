@@ -8,14 +8,14 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Om Prakash Samal | Developer Portfolio</title>
+    <title>Om Prakash Samal | Portfolio</title>
 
 
 
     <!-- SEO Meta Tags -->
 
     <meta name="description"
-        content="Portfolio of Om Prakash Samal - Visual & Frontend Developer showcasing academic marksheets, UiPath certifications, web projects, and document upload system.">
+        content="Portfolio of Om Prakash Samal - Visual Developer, Full-Stack and Android App Developer. Explore projects in Next.js, Spring Boot, Kotlin, and RPA automation.">
 
     <meta name="keywords"
         content="Om Prakash Samal, Frontend Developer, Visual Developer, Portfolio, Marksheets, UiPath, Kotlin, Next.js">
@@ -29,9 +29,22 @@
     <meta property="og:title" content="Om Prakash Samal | Developer Portfolio">
 
     <meta property="og:description"
-        content="Explore interactive projects, academic marksheets, and web development solutions.">
+        content="Explore projects in Next.js, Spring Boot, Android development, and RPA automation.">
 
     <meta property="og:type" content="website">
+
+    <meta property="og:url" content="https://portfolio-om-red.vercel.app/">
+
+    <meta property="og:image" content="https://portfolio-om-red.vercel.app/profilepic.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+
+    <meta name="twitter:title" content="Om Prakash Samal | Developer Portfolio">
+
+    <meta name="twitter:description"
+        content="Explore projects in Next.js, Spring Boot, Android development, and RPA automation.">
+
+    <meta name="twitter:image" content="https://portfolio-om-red.vercel.app/profilepic.png">
 
 
 
@@ -88,7 +101,7 @@
 
             <a href="#home" class="logo">
 
-                <i class="fa-solid fa-code"></i> <span>Deveops OM</span>
+                <i class="fa-solid fa-code"></i> <span>OM PRAKASH</span>
 
             </a>
 
@@ -103,8 +116,6 @@
                 <a href="#achievements" class="nav-link">Achievements</a>
 
                 <a href="#projects" class="nav-link">Projects</a>
-
-                <a href="#upload-docs" class="nav-link admin-only">Upload Docs</a>
 
                 <a href="#contact" class="nav-link">Contact</a>
 
@@ -123,7 +134,6 @@
                 <a href="#academics" class="nav-link">Academics</a>
                 <a href="#achievements" class="nav-link">Achievements</a>
                 <a href="#projects" class="nav-link">Projects</a>
-                <a href="#upload-docs" class="nav-link admin-only">Upload Docs</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </nav>
 
@@ -178,10 +188,14 @@
                 </div>
 
                 <div class="tech-stack-strip">
-
-                    <span>NEXT.JS</span> | <span>SPRING BOOT</span> | <span>KOTLIN</span> | <span>REST APIs</span> |
-                    <span>UIPATH</span>
-
+                    <span class="tech-stack-badge" tabindex="0" title="React framework">Next.js</span>
+                    <span class="tech-stack-badge" tabindex="0" title="JVM framework">Spring Boot</span>
+                    <span class="tech-stack-badge" tabindex="0" title="Android development">Kotlin</span>
+                    <span class="tech-stack-badge" tabindex="0" title="Android UI toolkit">Jetpack Compose</span>
+                    <span class="tech-stack-badge" tabindex="0" title="Relational database">MySQL</span>
+                    <span class="tech-stack-badge" tabindex="0" title="Document database">MongoDB</span>
+                    <span class="tech-stack-badge" tabindex="0" title="Workflow automation">UiPath</span>
+                    <span class="tech-stack-badge" tabindex="0" title="Interface design">Figma</span>
                 </div>
 
             </div>
@@ -832,7 +846,7 @@
 
     <!-- 7. CONTACT & FOOTER -->
 
-    <footer id="contact" class="footer fade-in-section">
+    <footer id="contact" class="footer bottom-navbar fade-in-section">
 
         <div class="container footer-content">
 
@@ -845,8 +859,6 @@
             </div>
 
             <p>Feel free to reach out for collaborations, software inquiries, or document verification.</p>
-
-
 
             <form class="contact-form" id="contactForm" novalidate>
 
@@ -862,23 +874,31 @@
 
                 <textarea name="message" id="senderMessage" rows="5" placeholder="Your Message..." autocomplete="off" required></textarea>
 
-                <button type="submit" id="sendBtn" class="btn btn-primary">Send Message <i
+                <button type="submit" id="sendBtn" class="btn btn-primary btn-send">Send Message <i
                         class="fa-solid fa-paper-plane"></i></button>
 
             </form>
 
 
 
-            <div class="copyright">
-
-                <p>&copy; Om Prakash Samal. All rights reserved.</p>
-
-                <button type="button" id="adminLoginBtn"
-                    style="background:none; border:none; color:#555; cursor:pointer; font-size:12px;">
-                    Admin Access
-                </button>
-
+            <div class="footer-contact-wrapper" aria-label="Direct contact links">
+                <a href="mailto:samalprakash160@gmail.com" class="footer-contact-item">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <span><strong>Email:</strong> samalprakash160@gmail.com</span>
+                </a>
+                <a href="https://www.linkedin.com/in/om-prakash-samal/" target="_blank" rel="noopener noreferrer" class="footer-contact-item">
+                    <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+                    <span><strong>LinkedIn:</strong> linkedin.com/in/om-prakash-samal</span>
+                </a>
+                <a href="https://github.com/samalmprakash16" target="_blank" rel="noopener noreferrer" class="footer-contact-item">
+                    <i class="fa-brands fa-github" aria-hidden="true"></i>
+                    <span><strong>GitHub:</strong> github.com/samalmprakash16</span>
+                </a>
             </div>
+
+            <p class="copyright-text">&copy; Om Prakash Samal. All rights reserved.</p>
+
+            <button type="button" id="adminLoginBtn" class="admin-access-link">Admin Access</button>
 
         </div>
 

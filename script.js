@@ -865,6 +865,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const repoName = repositoryName || project.title;
                 const globalIndex = startIndex + index + 1;
                 const safeId = escapeHtml(project.id);
+                const techTags = project.techStack
+                    .map((technology) => `<span class="project-tech-tag">${escapeHtml(technology)}</span>`)
+                    .join('');
                 const repoLink = githubUrl
                     ? `<a href="${escapeHtml(githubUrl)}" target="_blank" rel="noopener noreferrer" class="repo-name"><i class="fa-brands fa-github" aria-hidden="true"></i> ${escapeHtml(repoName)}</a>`
                     : `<span class="repo-name">${escapeHtml(repoName)}</span>`;
@@ -877,13 +880,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span class="repo-badge">${githubUrl ? 'Public' : 'Project'}</span>
                             </div>
                             <p class="repo-desc">${escapeHtml(project.description)}</p>
+                            <div class="project-tech-tags">${techTags}</div>
                         </div>
                         <div class="repo-meta">
                             <span><span class="repo-lang-dot" style="background-color: ${languageColor}"></span>${escapeHtml(language)}</span>
                             <span><i class="fa-regular fa-star" aria-hidden="true"></i> ${project.stars}</span>
                             <span><i class="fa-solid fa-code-fork" aria-hidden="true"></i> ${project.forks}</span>
                             <span class="repo-index">#${globalIndex}</span>
-                            ${demoUrl ? `<a class="repo-demo-link" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener noreferrer">Live Demo <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>` : ''}
+                            ${demoUrl ? `<a class="repo-demo-link" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener noreferrer">Live Preview <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>` : ''}
                             <span class="repo-admin-actions admin-only">
                                 <button type="button" class="icon-btn edit-project-btn admin-only" data-id="${safeId}" title="Edit project" aria-label="Edit ${escapeHtml(project.title)}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
                                 <button type="button" class="icon-btn delete-project-btn admin-only" data-id="${safeId}" title="Delete project" aria-label="Delete ${escapeHtml(project.title)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
