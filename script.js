@@ -2,10 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminParam = urlParams.get('admin') === 'true';
-    const isAdminSaved = localStorage.getItem('isAdmin') === 'true';
+    const isAdminSaved = localStorage.getItem('isAdmin') === 'true' ||
+        localStorage.getItem('isAdminLoggedIn') === 'true';
 
     if (isAdminParam) {
         localStorage.setItem('isAdmin', 'true');
+        localStorage.setItem('isAdminLoggedIn', 'true');
     }
 
     if (isAdminParam || isAdminSaved) {
@@ -16,6 +18,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper Utility: Safe query selector wrapper
     const getEl = (id) => document.getElementById(id);
     const getAll = (selector) => document.querySelectorAll(selector);
+
+    const adminLoginBtn = getEl('adminLoginBtn');
+
+    function applyAdminState() {
+        const isAdmin = document.body.classList.contains('is-admin') ||
+            localStorage.getItem('isAdminLoggedIn') === 'true' ||
+            localStorage.getItem('isAdmin') === 'true';
+
+        document.body.classList.toggle('is-admin', isAdmin);
+        const githubUrlInput = getEl('githubUrlInput');
+        const importGithubBtn = getEl('importGithubBtn');
+        if (githubUrlInput) githubUrlInput.disabled = !isAdmin;
+        if (importGithubBtn) importGithubBtn.disabled = !isAdmin;
+        if (adminLoginBtn) {
+            adminLoginBtn.textContent = isAdmin ? 'Admin Mode (Click to Logout)' : 'Admin Access';
+        }
+    }
+
+    applyAdminState();
+
+    if (adminLoginBtn) {
+        adminLoginBtn.addEventListener('click', () => {
+            const isAdmin = document.body.classList.contains('is-admin');
+
+            if (isAdmin) {
+                localStorage.removeItem('isAdmin');
+                localStorage.removeItem('isAdminLoggedIn');
+                document.body.classList.remove('is-admin');
+                applyAdminState();
+                alert('Logged out from Admin mode.');
+                return;
+            }
+
+            const passcode = window.prompt('Enter Admin Passcode:');
+            if (passcode === 'om123') {
+                localStorage.setItem('isAdmin', 'true');
+                localStorage.setItem('isAdminLoggedIn', 'true');
+                document.body.classList.add('is-admin');
+                applyAdminState();
+                alert('Admin access granted!');
+            } else if (passcode !== null) {
+                alert('Incorrect passcode!');
+            }
+        });
+    }
 
     if (localStorage.getItem('userResumeUrl')?.startsWith('blob:')) {
         localStorage.removeItem('userResumeUrl');
@@ -1263,5 +1310,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function logoutAdmin() {
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('isAdminLoggedIn');
     window.location.href = window.location.pathname;
 }
