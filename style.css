@@ -3539,22 +3539,37 @@ textarea:-webkit-autofill:active {
     border-color: #58a6ff;
 }
 
-.compact-card-link {
+.project-card-link {
     position: relative;
     z-index: 1;
+    display: flex;
     cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
-.compact-card-link:hover,
-.compact-card-link:focus,
-.compact-card-link:active {
+.project-card-link * {
+    pointer-events: none;
+}
+
+.project-card-link a,
+.project-card-link button {
+    pointer-events: auto;
+}
+
+.project-card-link:hover,
+.project-card-link:focus,
+.project-card-link:active {
     transform: translateY(-2px);
     border-color: #6366f1;
 }
 
-.compact-card-link:focus-visible {
+.project-card-link:focus-visible {
     outline: 2px solid #58a6ff;
     outline-offset: 3px;
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);

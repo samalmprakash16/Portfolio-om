@@ -947,7 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : `<span class="repo-name">${escapeHtml(repoName)}</span>`;
 
                 return `
-                    <article class="compact-card${githubUrl ? ' compact-card-link' : ''}" ${githubUrl ? `tabindex="0" data-repo-url="${escapeHtml(githubUrl)}" aria-label="Open ${escapeHtml(repoName)} on GitHub" aria-keyshortcuts="Enter Space"` : ''}>
+                    <article class="compact-card${githubUrl ? ' project-card-link' : ''}" ${githubUrl ? `role="link" tabindex="0" data-repo-url="${escapeHtml(githubUrl)}" aria-label="Open ${escapeHtml(repoName)} on GitHub" aria-keyshortcuts="Enter Space"` : ''}>
                         <div class="compact-card-main">
                             <div class="repo-header">
                                 ${repoLink}
