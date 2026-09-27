@@ -121,38 +121,59 @@ document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('userResumeUrl')?.startsWith('blob:')) {
         localStorage.removeItem('userResumeUrl');
         localStorage.removeItem('userResumeUrl_type');
+        localStorage.removeItem('userResumeName');
     }
 
-    function syncResumeButton() {
-        const storedResumeUrl = localStorage.getItem('userResumeUrl');
-        const savedResumeUrl = storedResumeUrl || 'assets/docs/resume.pdf';
-        const savedResumeType = storedResumeUrl
-            ? localStorage.getItem('userResumeUrl_type') ||
-                (savedResumeUrl.toLowerCase().includes('.pdf') ? 'application/pdf' : '')
-            : 'application/pdf';
+    let resumeSyncVersion = 0;
+
+    function applyResumeReference(resumeUrl, resumeType, resumeName) {
         const resumeButton = getEl('heroResumeBtn');
         const resumePreviewButton = getEl('openResumeModal');
         const resumeDownloadButton = getEl('resumeDownloadBtn');
         const contactResumeLink = getEl('contactResumeLink');
         const resumeTitle = document.querySelector('#resume .resume-title');
-        const resumeName = localStorage.getItem('userResumeName') || 'Om Prakash Samal — Resume';
-        if (resumeButton) resumeButton.setAttribute('href', savedResumeUrl);
+        if (resumeButton) resumeButton.setAttribute('href', resumeUrl);
         if (resumeTitle) resumeTitle.textContent = resumeName;
         if (resumePreviewButton) {
-            resumePreviewButton.setAttribute('data-doc', savedResumeUrl);
-            resumePreviewButton.setAttribute('data-doc-type', savedResumeType);
+            resumePreviewButton.setAttribute('data-doc', resumeUrl);
+            resumePreviewButton.setAttribute('data-doc-type', resumeType);
             resumePreviewButton.setAttribute('data-title', `${resumeName} Preview`);
-            resumePreviewButton.disabled = savedResumeType !== 'application/pdf' &&
-                !savedResumeType.startsWith('image/');
+            resumePreviewButton.disabled = resumeType !== 'application/pdf' &&
+                !resumeType.startsWith('image/');
         }
         if (resumeDownloadButton) {
-            resumeDownloadButton.setAttribute('href', savedResumeUrl);
+            resumeDownloadButton.setAttribute('href', resumeUrl);
             resumeDownloadButton.setAttribute('download', resumeName);
         }
-        if (contactResumeLink) contactResumeLink.setAttribute('href', savedResumeUrl);
+        if (contactResumeLink) contactResumeLink.setAttribute('href', resumeUrl);
     }
 
-    syncResumeButton();
+    async function syncResumeButton() {
+        const version = ++resumeSyncVersion;
+        const storedName = localStorage.getItem('userResumeName');
+        if (!storedName) {
+            applyResumeReference('assets/docs/resume.pdf', 'application/pdf', 'Om Prakash Samal — Resume');
+            return;
+        }
+
+        try {
+            const savedResume = await readCertificateFile('active-resume');
+            if (version !== resumeSyncVersion) return;
+            if (!savedResume?.blob) {
+                throw new Error('The saved resume file is missing from persistent browser storage.');
+            }
+
+            const savedType = localStorage.getItem('userResumeUrl_type') || savedResume.fileType || '';
+            const resumeUrl = createSafeObjectURL(savedResume.blob);
+            applyResumeReference(resumeUrl, savedType, storedName);
+        } catch (error) {
+            if (version !== resumeSyncVersion) return;
+            console.error('Unable to restore the saved resume:', error);
+            localStorage.removeItem('userResumeName');
+            localStorage.removeItem('userResumeUrl_type');
+            applyResumeReference('assets/docs/resume.pdf', 'application/pdf', 'Om Prakash Samal — Resume');
+        }
+    }
 
     // Mobile navigation toggle
     const mobileMenuToggle = getEl('mobileMenuToggle');
@@ -292,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Track created Object URLs to prevent memory leaks
     const createdObjectUrls = new Set();
+    let activeResumeObjectUrl = '';
     const createSafeObjectURL = (file) => {
         const url = URL.createObjectURL(file);
         createdObjectUrls.add(url);
@@ -722,6 +744,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
     }
+
+    syncResumeButton();
 
     async function deleteCertificateFile(courseId) {
         const database = await openCertificateDatabase();
@@ -1163,16 +1187,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             } else if (category === 'resume') {
-                fileUrl = createSafeObjectURL(selectedFile);
-                localStorage.setItem('userResumeUrl', fileUrl);
-                localStorage.setItem('userResumeUrl_type', selectedFile.type);
-                localStorage.setItem('userResumeName', selectedFile.name);
-                syncResumeButton();
-                setUploadFeedback('Resume updated successfully.', 'success');
-                if (fileInput) fileInput.value = '';
-                selectedFile = null;
-                if (fileDetails) fileDetails.style.display = 'none';
                 uploadSubmitBtn.disabled = true;
+                setUploadFeedback('Saving resume...');
+                try {
+                    await storeCertificateFile('active-resume', selectedFile);
+                    localStorage.setItem('userResumeUrl_type', selectedFile.type);
+                    localStorage.setItem('userResumeName', selectedFile.name);
+                    if (activeResumeObjectUrl) URL.revokeObjectURL(activeResumeObjectUrl);
+                    activeResumeObjectUrl = createSafeObjectURL(selectedFile);
+                    applyResumeReference(activeResumeObjectUrl, selectedFile.type, selectedFile.name);
+                    setUploadFeedback('Resume updated successfully.', 'success');
+                    if (fileInput) fileInput.value = '';
+                    selectedFile = null;
+                    if (fileDetails) fileDetails.style.display = 'none';
+                    uploadSubmitBtn.disabled = true;
+                } catch (error) {
+                    console.error('Unable to save the uploaded resume:', error);
+                    setUploadFeedback(
+                        `Resume upload failed: ${error instanceof Error ? error.message : 'Unknown storage error.'}`,
+                        'error'
+                    );
+                    uploadSubmitBtn.disabled = false;
+                }
                 return;
             } else {
                 setUploadFeedback('Select one of the listed courses or the resume option.', 'error');
