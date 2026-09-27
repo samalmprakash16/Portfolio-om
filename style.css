@@ -105,10 +105,7 @@ body::before {
     display: flex;
     width: max-content;
     animation: scroll-ticker 25s linear infinite;
-}
-
-.ticker-banner:hover .ticker-track {
-   animation-play-state: paused;
+    animation-play-state: running;
 }
 
 .ticker-group {

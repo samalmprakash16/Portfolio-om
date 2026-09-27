@@ -83,14 +83,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const resumePreviewButton = getEl('openResumeModal');
         const resumeDownloadButton = getEl('resumeDownloadBtn');
         const contactResumeLink = getEl('contactResumeLink');
+        const resumeTitle = document.querySelector('#resume .resume-title');
+        const resumeName = localStorage.getItem('userResumeName') || 'Om Prakash Samal — Resume';
         if (resumeButton) resumeButton.setAttribute('href', savedResumeUrl);
+        if (resumeTitle) resumeTitle.textContent = resumeName;
         if (resumePreviewButton) {
             resumePreviewButton.setAttribute('data-doc', savedResumeUrl);
             resumePreviewButton.setAttribute('data-doc-type', savedResumeType);
+            resumePreviewButton.setAttribute('data-title', `${resumeName} Preview`);
             resumePreviewButton.disabled = savedResumeType !== 'application/pdf' &&
                 !savedResumeType.startsWith('image/');
         }
-        if (resumeDownloadButton) resumeDownloadButton.setAttribute('href', savedResumeUrl);
+        if (resumeDownloadButton) {
+            resumeDownloadButton.setAttribute('href', savedResumeUrl);
+            resumeDownloadButton.setAttribute('download', resumeName);
+        }
         if (contactResumeLink) contactResumeLink.setAttribute('href', savedResumeUrl);
     }
 
@@ -1102,56 +1109,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 fileUrl = createSafeObjectURL(selectedFile);
                 localStorage.setItem('userResumeUrl', fileUrl);
                 localStorage.setItem('userResumeUrl_type', selectedFile.type);
+                localStorage.setItem('userResumeName', selectedFile.name);
                 syncResumeButton();
+                setUploadFeedback('Resume updated successfully.', 'success');
+                if (fileInput) fileInput.value = '';
+                selectedFile = null;
+                if (fileDetails) fileDetails.style.display = 'none';
+                uploadSubmitBtn.disabled = true;
+                return;
             } else {
                 setUploadFeedback('Select one of the listed courses or the resume option.', 'error');
                 return;
-            }
-
-            const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
-
-            if (category === 'resume' && attachedDocsGrid) {
-                let iconClass = 'fa-file-pdf';
-                if (selectedFile.type.startsWith('image/')) iconClass = 'fa-file-image';
-                else if (selectedFile.name.match(/\.(doc|docx)$/i)) iconClass = 'fa-file-word';
-
-                const newDocCard = document.createElement('div');
-                newDocCard.className = 'compact-doc-card';
-                newDocCard.innerHTML = `
-                    <div class="compact-doc-top-bar">
-                        <div class="compact-doc-header">
-                            <div class="doc-icon-box">
-                                <i class="fa-solid ${iconClass}"></i>
-                            </div>
-                            <div class="doc-info">
-                                <h4 title="${selectedFile.name}">${selectedFile.name}</h4>
-                                <small>Format: ${selectedFile.name.split('.').pop().toUpperCase()} • ${fileSizeMB}</small>
-                            </div>
-                        </div>
-                        <input type="checkbox" class="doc-select-checkbox" title="Select item">
-                    </div>
-                    <div class="compact-doc-actions">
-                        <button class="btn btn-outline btn-sm view-doc-btn" data-doc="${fileUrl}" data-title="${selectedFile.name}">
-                            View <i class="fa-solid fa-expand"></i>
-                        </button>
-                        <a href="${fileUrl}" download="${selectedFile.name}" class="btn btn-primary btn-sm">
-                            <i class="fa-solid fa-download"></i>
-                        </a>
-                        <button class="btn btn-danger-icon btn-sm delete-single-btn" title="Delete Document">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                `;
-
-                attachedDocsGrid.prepend(newDocCard);
-                bindModalTrigger(newDocCard.querySelector('.view-doc-btn'));
-
-                if (cvDisplaySection) {
-                    cvDisplaySection.style.display = 'block';
-                    cvDisplaySection.scrollIntoView({ behavior: 'smooth' });
-                }
-                updateSelectionState();
-                setUploadFeedback('Resume updated successfully.', 'success');
             }
 
             if (fileInput) fileInput.value = '';
