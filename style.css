@@ -46,8 +46,9 @@ body::before {
     background: radial-gradient(circle 260px at var(--spotlight-x, 50%) var(--spotlight-y, 20%), rgba(99, 102, 241, 0.1), transparent 72%);
 }
 
+html.intro-loader-active,
 body.intro-loader-active {
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 .loader-overlay {
@@ -56,13 +57,14 @@ body.intro-loader-active {
     z-index: 99999;
     display: flex;
     width: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background: #030712;
     transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+    will-change: transform, opacity;
 }
 
 .loader-overlay.loader-finished {

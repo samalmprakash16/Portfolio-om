@@ -8,15 +8,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressBar = introLoader.querySelector('[role="progressbar"]');
 
         const finishLoader = () => {
-            document.body.classList.remove('intro-loader-active');
+            const unlockPage = () => {
+                introLoader.style.display = 'none';
+                document.documentElement.classList.remove('intro-loader-active');
+                document.body.classList.remove('intro-loader-active');
+            };
+
             introLoader.setAttribute('aria-hidden', 'true');
             introLoader.classList.add('loader-finished');
-            window.setTimeout(() => introLoader.remove(), 850);
+
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                unlockPage();
+                return;
+            }
+
+            let transitionFinished = false;
+            const completeTransition = (event) => {
+                if (transitionFinished || (event && (event.target !== introLoader || event.propertyName !== 'transform'))) {
+                    return;
+                }
+                transitionFinished = true;
+                introLoader.removeEventListener('transitionend', completeTransition);
+                window.clearTimeout(fallbackTimer);
+                unlockPage();
+            };
+            const fallbackTimer = window.setTimeout(() => completeTransition(), 900);
+            introLoader.addEventListener('transitionend', completeTransition);
         };
 
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             finishLoader();
         } else {
+            document.documentElement.classList.add('intro-loader-active');
             document.body.classList.add('intro-loader-active');
 
             const statusMessages = [
@@ -148,11 +171,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (contactResumeLink) contactResumeLink.setAttribute('href', resumeUrl);
     }
 
+    const defaultResumeReference = {
+        url: getEl('openResumeModal')?.getAttribute('data-doc') || 'assets/docs/resume.pdf',
+        type: 'application/pdf',
+        name: 'Om Prakash Samal — Resume'
+    };
+
     async function syncResumeButton() {
         const version = ++resumeSyncVersion;
         const storedName = localStorage.getItem('userResumeName');
         if (!storedName) {
-            applyResumeReference('assets/docs/resume.pdf', 'application/pdf', 'Om Prakash Samal — Resume');
+            applyResumeReference(
+                defaultResumeReference.url,
+                defaultResumeReference.type,
+                defaultResumeReference.name
+            );
             return;
         }
 
@@ -171,7 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Unable to restore the saved resume:', error);
             localStorage.removeItem('userResumeName');
             localStorage.removeItem('userResumeUrl_type');
-            applyResumeReference('assets/docs/resume.pdf', 'application/pdf', 'Om Prakash Samal — Resume');
+            applyResumeReference(
+                defaultResumeReference.url,
+                defaultResumeReference.type,
+                defaultResumeReference.name
+            );
         }
     }
 
@@ -1291,7 +1328,14 @@ document.addEventListener('DOMContentLoaded', () => {
             isFeatured: true
         }
     ];
-    const storedProjects = JSON.parse(localStorage.getItem(projectStorageKey) || 'null');
+    let storedProjects = null;
+    try {
+        const serializedProjects = localStorage.getItem(projectStorageKey);
+        const parsedProjects = serializedProjects ? JSON.parse(serializedProjects) : null;
+        if (Array.isArray(parsedProjects)) storedProjects = parsedProjects;
+    } catch (error) {
+        console.error('Unable to read saved featured projects; using the built-in project list:', error);
+    }
     let projects = Array.isArray(storedProjects) && storedProjects.length ? storedProjects : defaultProjects;
     const projectSlider = getEl('projectsContainer') || getEl('projectsSlider') || getEl('projectSlider');
     const projectManagerList = getEl('projectManagerList');
@@ -1384,9 +1428,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveAndRenderProjects() {
-        localStorage.setItem('user_featured_projects', JSON.stringify(projects));
         projectPage = 1;
         renderProjects();
+        try {
+            localStorage.setItem(projectStorageKey, JSON.stringify(projects));
+        } catch (error) {
+            console.error('Unable to save featured projects in this browser:', error);
+        }
     }
 
     function renderProjects() {
@@ -1657,7 +1705,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    localStorage.setItem(projectStorageKey, JSON.stringify(projects));
     renderProjects();
 
     // 9. VIDEO DEMO MODAL & UPLOAD SYSTEM
