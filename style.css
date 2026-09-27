@@ -46,6 +46,126 @@ body::before {
     background: radial-gradient(circle 260px at var(--spotlight-x, 50%) var(--spotlight-y, 20%), rgba(99, 102, 241, 0.1), transparent 72%);
 }
 
+body.intro-loader-active {
+    overflow-y: hidden;
+}
+
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: center;
+    justify-content: center;
+    background: #030712;
+    transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+}
+
+.loader-overlay.loader-finished {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loader-content {
+    display: flex;
+    width: min(90%, 400px);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.loader-logo-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.loader-logo {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 90px;
+    height: 90px;
+    border-radius: 16px;
+    object-fit: contain;
+    animation: loaderLogoPulse 2s ease-in-out infinite alternate;
+}
+
+.logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    width: 110px;
+    height: 110px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(88, 101, 242, 0.5), rgba(139, 92, 246, 0.2) 60%, transparent 80%);
+    filter: blur(12px);
+}
+
+.loader-status-text {
+    min-height: 20px;
+    margin-bottom: 1.2rem;
+    color: #94a3b8;
+    font-family: monospace;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.loader-bar-container {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.loader-bar-fill {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #6366f1);
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
+    transition: width 0.05s ease-out;
+}
+
+.loader-percentage {
+    margin-top: 0.5rem;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    background-clip: text;
+    color: transparent;
+    font-family: monospace;
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.loader-code-sub {
+    margin-top: 1.5rem;
+    color: #475569;
+    font-size: 0.75rem;
+}
+
+@keyframes loaderLogoPulse {
+    from {
+        transform: scale(0.96);
+        filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
+    }
+    to {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 22px rgba(139, 92, 246, 0.7));
+    }
+}
+
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     body,
     a,
@@ -142,6 +262,13 @@ body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .loader-overlay,
+    .loader-logo,
+    .loader-bar-fill {
+        animation: none;
+        transition: none;
+    }
+
     .ticker-track {
         animation: none;
     }

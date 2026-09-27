@@ -89,6 +89,22 @@
 
 <body>
 
+    <div class="loader-overlay" id="introLoader" role="status" aria-label="Loading portfolio">
+        <div class="loader-content">
+            <div class="loader-logo-wrapper" aria-hidden="true">
+                <img src="favicon.png" alt="" class="loader-logo">
+                <div class="logo-glow"></div>
+            </div>
+            <div class="loader-status-text" id="loaderStatus">Initializing portfolio environment...</div>
+            <div class="loader-bar-container" role="progressbar" aria-label="Portfolio loading progress"
+                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="loader-bar-fill" id="loaderBar"></div>
+            </div>
+            <div class="loader-percentage" id="loaderPercent" aria-hidden="true">0%</div>
+            <div class="loader-code-sub"><code>&lt;system: ready&gt;</code></div>
+        </div>
+    </div>
+
     <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
 
 
@@ -186,17 +202,6 @@
                     <a href="#academics" class="btn btn-outline">View Academics <i
                             class="fa-solid fa-graduation-cap" aria-hidden="true"></i></a>
 
-                </div>
-
-                <div class="tech-stack-strip">
-                    <span class="tech-stack-badge" tabindex="0" title="React framework">Next.js</span>
-                    <span class="tech-stack-badge" tabindex="0" title="JVM framework">Spring Boot</span>
-                    <span class="tech-stack-badge" tabindex="0" title="Android development">Kotlin</span>
-                    <span class="tech-stack-badge" tabindex="0" title="Android UI toolkit">Jetpack Compose</span>
-                    <span class="tech-stack-badge" tabindex="0" title="Relational database">MySQL</span>
-                    <span class="tech-stack-badge" tabindex="0" title="Document database">MongoDB</span>
-                    <span class="tech-stack-badge" tabindex="0" title="Workflow automation">UiPath</span>
-                    <span class="tech-stack-badge" tabindex="0" title="Interface design">Figma</span>
                 </div>
 
             </div>

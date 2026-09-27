@@ -1,5 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const introLoader = document.getElementById('introLoader');
+    if (introLoader) {
+        const loaderBar = document.getElementById('loaderBar');
+        const loaderPercent = document.getElementById('loaderPercent');
+        const loaderStatus = document.getElementById('loaderStatus');
+        const progressBar = introLoader.querySelector('[role="progressbar"]');
+
+        const finishLoader = () => {
+            document.body.classList.remove('intro-loader-active');
+            introLoader.setAttribute('aria-hidden', 'true');
+            introLoader.classList.add('loader-finished');
+            window.setTimeout(() => introLoader.remove(), 850);
+        };
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            finishLoader();
+        } else {
+            document.body.classList.add('intro-loader-active');
+
+            const statusMessages = [
+                { threshold: 10, text: 'Initializing portfolio environment...' },
+                { threshold: 30, text: 'Loading developer projects & stack...' },
+                { threshold: 55, text: 'Configuring Omex assistant...' },
+                { threshold: 80, text: 'Finalizing visual components...' },
+                { threshold: 95, text: "Welcome to Om Prakash's Portfolio!" }
+            ];
+            let progress = 0;
+
+            const interval = window.setInterval(() => {
+                progress = Math.min(progress + Math.floor(Math.random() * 4) + 1, 100);
+                if (loaderBar) loaderBar.style.width = `${progress}%`;
+                if (loaderPercent) loaderPercent.textContent = `${progress}%`;
+                if (progressBar) progressBar.setAttribute('aria-valuenow', String(progress));
+
+                for (let index = statusMessages.length - 1; index >= 0; index -= 1) {
+                    if (progress >= statusMessages[index].threshold) {
+                        if (loaderStatus) loaderStatus.textContent = statusMessages[index].text;
+                        break;
+                    }
+                }
+
+                if (progress === 100) {
+                    window.clearInterval(interval);
+                    window.setTimeout(finishLoader, 300);
+                }
+            }, 70);
+        }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminParam = urlParams.get('admin') === 'true';
     const isAdminSaved = localStorage.getItem('isAdmin') === 'true' ||
@@ -50,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('isAdminLoggedIn');
                 document.body.classList.remove('is-admin');
                 applyAdminState();
+                renderUploadStatuses();
                 alert('Logged out from Admin mode.');
                 return;
             }
@@ -60,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('isAdminLoggedIn', 'true');
                 document.body.classList.add('is-admin');
                 applyAdminState();
+                renderUploadStatuses();
                 alert('Admin access granted!');
             } else if (passcode !== null) {
                 alert('Incorrect passcode!');
@@ -444,12 +495,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderUploadStatuses() {
-        const certificates = getStoredCertificates();
         courseCertifications.forEach(({ id }) => {
             const statusContainer = getEl(`status-${id}`);
             if (!statusContainer) return;
             statusContainer.replaceChildren();
+        });
 
+        if (!isAdminMode()) return;
+
+        const certificates = getStoredCertificates();
+        courseCertifications.forEach(({ id }) => {
+            const statusContainer = getEl(`status-${id}`);
+            if (!statusContainer) return;
             const certificate = certificates[id];
             if (!certificate || certificate.status !== 'Uploaded Successful') return;
 
