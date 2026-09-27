@@ -60,6 +60,7 @@ body.intro-loader-active {
     min-height: 100dvh;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     background: #030712;
     transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
 }
@@ -72,7 +73,7 @@ body.intro-loader-active {
 
 .loader-content {
     display: flex;
-    width: min(90%, 400px);
+    width: min(85%, 320px);
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -80,18 +81,17 @@ body.intro-loader-active {
 
 .loader-logo-wrapper {
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
 }
 
 .loader-logo {
     position: relative;
     z-index: 2;
     display: block;
-    width: 90px;
-    height: 90px;
-    border-radius: 16px;
+    width: 65px;
+    height: 65px;
+    border-radius: 12px;
     object-fit: contain;
-    animation: loaderLogoPulse 2s ease-in-out infinite alternate;
 }
 
 .logo-glow {
@@ -99,28 +99,32 @@ body.intro-loader-active {
     top: 50%;
     left: 50%;
     z-index: 1;
-    width: 110px;
-    height: 110px;
+    width: 80px;
+    height: 80px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(88, 101, 242, 0.5), rgba(139, 92, 246, 0.2) 60%, transparent 80%);
-    filter: blur(12px);
+    background: radial-gradient(circle, rgba(88, 101, 242, 0.4), rgba(139, 92, 246, 0.2) 60%, transparent 80%);
+    filter: blur(10px);
 }
 
 .loader-status-text {
-    min-height: 20px;
-    margin-bottom: 1.2rem;
+    display: flex;
+    height: 2.2em;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
     color: #94a3b8;
     font-family: monospace;
-    font-size: 0.85rem;
-    letter-spacing: 1px;
+    font-size: 0.72rem;
+    letter-spacing: 0.8px;
+    text-align: center;
     text-transform: uppercase;
 }
 
 .loader-bar-container {
     position: relative;
     width: 100%;
-    height: 6px;
+    height: 4px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 10px;
@@ -132,37 +136,33 @@ body.intro-loader-active {
     height: 100%;
     border-radius: inherit;
     background: linear-gradient(90deg, #3b82f6, #8b5cf6, #6366f1);
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
     transition: width 0.05s ease-out;
 }
 
 .loader-percentage {
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
     background: linear-gradient(135deg, #60a5fa, #a78bfa);
     background-clip: text;
     color: transparent;
     font-family: monospace;
-    font-size: 2.8rem;
+    font-size: 1.8rem;
     font-weight: 800;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .loader-code-sub {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     color: #475569;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
 }
 
-@keyframes loaderLogoPulse {
-    from {
-        transform: scale(0.96);
-        filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
-    }
-    to {
-        transform: scale(1.04);
-        filter: drop-shadow(0 0 22px rgba(139, 92, 246, 0.7));
+@media (max-width: 480px) {
+    .loader-content {
+        width: 80%;
+        transform: scale(0.95);
     }
 }
 
