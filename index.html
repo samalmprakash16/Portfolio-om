@@ -114,7 +114,7 @@
 
                     <a href="#academics" class="nav-link">Academics</a>
 
-                    <a href="#achievements" class="nav-link">Achievements</a>
+                    <a href="#certifications" class="nav-link">Certifications</a>
 
                     <a href="#projects" class="nav-link">Projects</a>
 
@@ -137,7 +137,7 @@
                 <a href="#about" class="nav-link">About Us</a>
                 <a href="#experience" class="nav-link">Experience</a>
                 <a href="#academics" class="nav-link">Academics</a>
-                <a href="#achievements" class="nav-link">Achievements</a>
+                <a href="#certifications" class="nav-link">Certifications</a>
                 <a href="#projects" class="nav-link">Projects</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </nav>
@@ -165,10 +165,9 @@
                 <div class="availability-status"><span></span> Available for Projects &amp; Engineering Roles</div>
 
                 <h1 class="hero-title">
-
-                    Frontend &amp; <span class="typing-text" id="typingText">Visual Developer</span>
+                    <span class="hero-title-intro">Frontend &amp;</span>
+                    <span class="typing-text" id="typingText" aria-live="off">Visual Developer</span>
                     <span class="accent-text">Crafting Seamless Experiences.</span>
-
                 </h1>
 
                 <p class="hero-subtitle">
@@ -509,63 +508,89 @@
 
 
 
-    <!-- 4. COURSES & ACHIEVEMENTS SECTION -->
-<section id="achievements" class="achievements fade-in-section">
+    <!-- 4. COURSE CERTIFICATIONS SECTION -->
+<section id="certifications" class="certifications-section fade-in-section">
     <div class="container">
         <div class="section-header">
             <span class="sub-heading">— RECOGNITION &amp; CERTIFICATIONS</span>
-            <h2>Courses &amp; Achievements</h2>
+            <h2>Course Certifications</h2>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="achievement-tabs">
-            <button class="tab-btn active" data-tab="all">All</button>
-            <button class="tab-btn" data-tab="courses"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Course Achievements</button>
-            <button class="tab-btn" data-tab="sports"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Sports Achievements</button>
-        </div>
-
-        <div class="achievements-grid" id="achievementsGrid">
-            <!-- Course Card 1 -->
-            <div class="achievement-card" data-category="courses">
-                <div class="achievement-icon"><i class="fa-solid fa-certificate" aria-hidden="true"></i></div>
-                <div class="achievement-content">
-                    <span class="cert-date">UiPath Certified</span>
-                    <h3>Control Flow in Studio (v2024.10)</h3>
-                    <p>Mastered advanced workflow control structures, condition triggers, and logic handling.</p>
-                    <div class="achievement-card-actions">
-                        <button class="btn btn-outline btn-sm view-doc-btn" data-doc="assets/docs/uipath_cert.jpg"
-                            data-title="UiPath Certificate">View <i class="fa-solid fa-expand" aria-hidden="true"></i></button>
-                    </div>
+        <div class="courses-grid">
+            <article class="course-card" data-course-id="excel-uipath">
+                <div class="course-card-header">
+                    <img src="uipath.png" alt="UiPath logo" class="provider-logo" loading="lazy">
+                    <span class="upload-status" id="status-excel-uipath" aria-live="polite"></span>
                 </div>
-            </div>
-
-            <!-- Course Card 2 -->
-            <div class="achievement-card" data-category="courses">
-                <div class="achievement-icon"><i class="fa-solid fa-file-excel" aria-hidden="true"></i></div>
-                <div class="achievement-content">
-                    <span class="cert-date">UiPath Certified</span>
-                    <h3>Excel Automation (Modern Experience)</h3>
-                    <p>Certified in enterprise data processing and automated report generation.</p>
-                    <div class="achievement-card-actions">
-                        <button class="btn btn-outline btn-sm view-doc-btn" data-doc="assets/docs/excel_cert.jpg"
-                            data-title="Excel Certificate">View <i class="fa-solid fa-expand" aria-hidden="true"></i></button>
-                    </div>
+                <div class="course-body">
+                    <span class="provider-tag">UIPATH CERTIFIED</span>
+                    <h3 class="course-title">Excel Automation with the Modern Experience in Studio (v2024.10)</h3>
+                    <p class="issue-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Issued Apr 2026</p>
+                    <button type="button" class="btn-view-cert" data-course-id="excel-uipath">
+                        View <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                    </button>
                 </div>
-            </div>
+            </article>
 
-            <!-- Sports Card 1 -->
-            <div class="achievement-card" data-category="sports">
-                <div class="achievement-icon"><i class="fa-solid fa-medal" aria-hidden="true"></i></div>
-                <div class="achievement-content">
-                    <span class="cert-date">Sports Achievement</span>
-                    <h3>University Athletics Championship</h3>
-                    <p>Secured 1st place position in the inter-college sports championship tournament.</p>
-                    <div class="achievement-card-actions">
-                        <button class="btn btn-outline btn-sm view-doc-btn" data-doc="assets/docs/sports_cert.jpg"
-                            data-title="Sports Certificate">View <i class="fa-solid fa-expand" aria-hidden="true"></i></button>
-                    </div>
+            <article class="course-card" data-course-id="prompt-ibm">
+                <div class="course-card-header">
+                    <img src="ibm.png" alt="IBM logo" class="provider-logo" loading="lazy">
+                    <span class="upload-status" id="status-prompt-ibm" aria-live="polite"></span>
                 </div>
-            </div>
+                <div class="course-body">
+                    <span class="provider-tag">IBM CERTIFIED</span>
+                    <h3 class="course-title">Mastering in Prompt</h3>
+                    <p class="issue-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Issued Apr 2026</p>
+                    <button type="button" class="btn-view-cert" data-course-id="prompt-ibm">
+                        View <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </article>
+
+            <article class="course-card" data-course-id="controlflow-uipath">
+                <div class="course-card-header">
+                    <img src="uipath.png" alt="UiPath logo" class="provider-logo" loading="lazy">
+                    <span class="upload-status" id="status-controlflow-uipath" aria-live="polite"></span>
+                </div>
+                <div class="course-body">
+                    <span class="provider-tag">UIPATH CERTIFIED</span>
+                    <h3 class="course-title">Control Flow in Studio (v2024.10)</h3>
+                    <p class="issue-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Issued Apr 2026</p>
+                    <button type="button" class="btn-view-cert" data-course-id="controlflow-uipath">
+                        View <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </article>
+
+            <article class="course-card" data-course-id="py-structures-coursera">
+                <div class="course-card-header">
+                    <img src="coursera.png" alt="Coursera logo" class="provider-logo" loading="lazy">
+                    <span class="upload-status" id="status-py-structures-coursera" aria-live="polite"></span>
+                </div>
+                <div class="course-body">
+                    <span class="provider-tag">COURSERA CERTIFIED</span>
+                    <h3 class="course-title">Python Data Structures</h3>
+                    <p class="issue-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Issued Jul 2025</p>
+                    <button type="button" class="btn-view-cert" data-course-id="py-structures-coursera">
+                        View <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </article>
+
+            <article class="course-card" data-course-id="py-everybody-coursera">
+                <div class="course-card-header">
+                    <img src="coursera.png" alt="Coursera logo" class="provider-logo" loading="lazy">
+                    <span class="upload-status" id="status-py-everybody-coursera" aria-live="polite"></span>
+                </div>
+                <div class="course-body">
+                    <span class="provider-tag">COURSERA CERTIFIED</span>
+                    <h3 class="course-title">Programming for Everybody (Getting Started with Python)</h3>
+                    <p class="issue-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Issued Jul 2025</p>
+                    <button type="button" class="btn-view-cert" data-course-id="py-everybody-coursera">
+                        View <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </article>
         </div>
     </div>
 </section>
@@ -919,33 +944,48 @@
 
                 <div class="upload-type-selector">
 
-                    <label>Select Document Type:</label>
+                    <label for="docCategorySelect">Select Course / Document Type:</label>
 
-                    <select id="docCategorySelect" class="form-select">
-
+                    <select id="docCategorySelect" class="form-select" required>
+                        <option value="" disabled selected>-- Select Certificate --</option>
+                        <option value="excel-uipath">Excel Automation in Studio (UiPath)</option>
+                        <option value="prompt-ibm">Mastering in Prompt (IBM)</option>
+                        <option value="controlflow-uipath">Control Flow in Studio (UiPath)</option>
+                        <option value="py-structures-coursera">Python Data Structures (Coursera)</option>
+                        <option value="py-everybody-coursera">Programming for Everybody (Coursera)</option>
                         <option value="resume">CV / Resume</option>
-
-                        <option value="courses">Course Achievement Certificate</option>
-
-                        <option value="sports">Sports Achievement Certificate</option>
-
-                        <option value="general">Other Document</option>
-
+                        <option value="new-course" class="highlight-option">+ Add New Custom Course</option>
                     </select>
-
                 </div>
 
-
-
-                <!-- Dynamic Title Input -->
-
-                <div class="upload-meta-fields" id="metaFields" style="display: none;">
-
-                    <input type="text" id="certTitleInput" placeholder="Enter Certificate / Achievement Title..."
-                        class="form-input">
-
+                <div class="custom-fields-container" id="customCourseFields" hidden>
+                    <div class="custom-course-field">
+                        <label for="newCourseTitle">Course Title:</label>
+                        <input type="text" id="newCourseTitle" class="form-input"
+                            placeholder="e.g., Deep Learning Specialization">
+                    </div>
+                    <div class="custom-course-field">
+                        <label for="newProvider">Provider / Organization:</label>
+                        <input type="text" id="newProvider" class="form-input"
+                            placeholder="e.g., DeepLearning.AI or Udemy">
+                    </div>
+                    <div class="custom-course-field">
+                        <label for="newIssueDate">Issue Date:</label>
+                        <input type="text" id="newIssueDate" class="form-input"
+                            placeholder="e.g., Issued Oct 2026">
+                    </div>
+                    <div class="custom-course-field">
+                        <label for="logoSearchInput">Provider Logo Search (brand or domain):</label>
+                        <div class="logo-search-wrapper">
+                            <input type="text" id="logoSearchInput" class="form-input"
+                                placeholder="e.g., uipath.com, ibm.com, google.com" autocomplete="off">
+                            <div class="logo-preview-box">
+                                <img id="logoPreviewImg" src="favicon.png" alt="Provider logo preview">
+                            </div>
+                        </div>
+                        <small class="help-text">Searches the brand logo service as you type; unavailable logos use the default icon.</small>
+                    </div>
                 </div>
-
 
 
                 <!-- Drag & Drop Zone -->
@@ -1002,6 +1042,8 @@
                     Submit & Attach Document <i class="fa-solid fa-paper-plane"></i>
 
                 </button>
+
+                <p class="upload-feedback" id="uploadFeedback" role="status" aria-live="polite"></p>
 
             </div>
 
@@ -1179,16 +1221,35 @@
     </div>
 
     <!-- Floating AI Portfolio Assistant -->
-    <button class="ai-chat-toggle" id="aiChatToggle" type="button" aria-label="Open AI assistant" aria-expanded="false">
-        <i class="fa-solid fa-comment-dots"></i>
-        <span class="ai-chat-toggle-label">Ask AI</span>
-    </button>
+    <div class="ai-chat-launcher">
+        <button class="ai-chat-toggle ai-robot-launcher" id="aiChatToggle" type="button"
+            aria-label="Open AI assistant" aria-expanded="false" aria-controls="aiChatPanel">
+            <span class="ai-robot-speech" id="aiRobotSpeech" aria-hidden="true">Use Me! ✨</span>
+            <svg class="ai-robot-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="50" y1="20" x2="50" y2="8" stroke="#a5b4fc" stroke-width="4"
+                    stroke-linecap="round" />
+                <circle cx="50" cy="6" r="5" fill="#f472b6" class="ai-robot-antenna" />
+                <rect x="25" y="20" width="50" height="38" rx="12" fill="#1e1b4b" stroke="#818cf8"
+                    stroke-width="3" />
+                <circle cx="38" cy="38" r="5" fill="#67e8f9" class="ai-robot-eye" />
+                <circle cx="62" cy="38" r="5" fill="#67e8f9" class="ai-robot-eye" />
+                <path id="aiRobotMouth" d="M 42 48 Q 50 54 58 48" fill="none" stroke="#c4b5fd"
+                    stroke-width="3" stroke-linecap="round" />
+                <path id="aiRobotSmile" d="M 40 47 Q 50 59 60 47" fill="none" stroke="#6ee7b7"
+                    stroke-width="3" stroke-linecap="round" />
+                <path d="M 30 58 L 70 58 L 75 80 L 25 80 Z" fill="#312e81" stroke="#818cf8"
+                    stroke-width="3" />
+                <ellipse cx="28" cy="62" rx="6" ry="4" fill="#818cf8" />
+                <ellipse cx="72" cy="62" rx="6" ry="4" fill="#818cf8" />
+            </svg>
+        </button>
+    </div>
 
-    <aside class="ai-chat-panel" id="aiChatPanel" aria-label="AI portfolio assistant" aria-hidden="true">
+    <aside class="ai-chat-panel" id="aiChatPanel" aria-label="Omex assistant" aria-hidden="true">
         <div class="ai-chat-header">
             <div>
                 <span class="ai-chat-status"><span></span> Online assistant</span>
-                <h2>Portfolio AI</h2>
+                <h2>Omex</h2>
             </div>
             <button class="ai-chat-close" id="aiChatClose" type="button" aria-label="Close AI assistant">
                 <i class="fa-solid fa-xmark"></i>
@@ -1196,8 +1257,19 @@
         </div>
 
         <div class="ai-chat-messages" id="aiChatMessages" aria-live="polite">
-            <div class="ai-message ai-message-bot">Hi, I can help you explore projects, skills, and ways to get in
-                touch.</div>
+            <div class="ai-chat-row ai-chat-row-bot">
+                <div class="ai-bot-avatar" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="20" y="22" width="60" height="48" rx="12" fill="#1e1b4b" stroke="#818cf8"
+                            stroke-width="6" />
+                        <circle cx="38" cy="42" r="7" fill="#67e8f9" />
+                        <circle cx="62" cy="42" r="7" fill="#67e8f9" />
+                        <path d="M 38 54 Q 50 64 62 54" fill="none" stroke="#a5b4fc" stroke-width="5"
+                            stroke-linecap="round" />
+                    </svg>
+                </div>
+                <div class="ai-message ai-message-bot">Hi, I'm Omex! I can help you explore projects, skills, and ways to get in touch with Om Prakash.</div>
+            </div>
         </div>
 
         <div class="ai-quick-replies" aria-label="Suggested questions">

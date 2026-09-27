@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper Utility: Safe query selector wrapper
     const getEl = (id) => document.getElementById(id);
     const getAll = (selector) => document.querySelectorAll(selector);
+    const isAdminMode = () => document.body.classList.contains('is-admin') ||
+        localStorage.getItem('isAdmin') === 'true' ||
+        localStorage.getItem('isAdminLoggedIn') === 'true';
 
     const adminLoginBtn = getEl('adminLoginBtn');
 
@@ -184,34 +187,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Cycle through roles in the hero without animating for reduced-motion users.
+    // Cross-fade hero roles in a fixed title row to prevent layout shifts.
     const typingText = getEl('typingText');
     const typingRoles = ['Visual Developer', 'Frontend Specialist', 'Android Creator'];
     let typingRoleIndex = 0;
-    let typingCharacterIndex = 0;
-    let isDeletingTypingText = false;
 
-    function runTypingEffect() {
-        if (!typingText || reducedMotionQuery.matches) return;
-        const currentRole = typingRoles[typingRoleIndex];
-        typingCharacterIndex += isDeletingTypingText ? -1 : 1;
-        typingText.textContent = currentRole.slice(0, typingCharacterIndex);
+    if (typingText && !reducedMotionQuery.matches) {
+        const typewriterTimer = window.setInterval(() => {
+            typingText.classList.add('is-fading');
+            window.setTimeout(() => {
+                typingRoleIndex = (typingRoleIndex + 1) % typingRoles.length;
+                typingText.textContent = typingRoles[typingRoleIndex];
+                typingText.classList.remove('is-fading');
+            }, 350);
+        }, 3500);
 
-        if (!isDeletingTypingText && typingCharacterIndex === currentRole.length) {
-            isDeletingTypingText = true;
-            setTimeout(runTypingEffect, 1800);
-            return;
-        }
-
-        if (isDeletingTypingText && typingCharacterIndex === 0) {
-            isDeletingTypingText = false;
-            typingRoleIndex = (typingRoleIndex + 1) % typingRoles.length;
-        }
-
-        setTimeout(runTypingEffect, isDeletingTypingText ? 45 : 85);
+        window.addEventListener('beforeunload', () => window.clearInterval(typewriterTimer), { once: true });
     }
-
-    if (typingText && !reducedMotionQuery.matches) setTimeout(runTypingEffect, 700);
 
     // Keep the ambient spotlight and custom cursor on the compositor-friendly path.
     const customCursor = getEl('customCursor');
@@ -304,30 +296,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = getEl('modalTitle');
     const closeDocModal = getEl('closeDocModal');
 
+    function openDocumentPreview(docSrc, docTitle, docType = '', fileName = '') {
+        if (!docSrc) return;
+
+        if (modalTitle) modalTitle.textContent = docTitle;
+
+        const isPdf = docType === 'application/pdf' ||
+            docSrc.toLowerCase().includes('.pdf') ||
+            fileName.toLowerCase().endsWith('.pdf');
+
+        if (isPdf) {
+            if (modalImg) { modalImg.style.display = 'none'; modalImg.src = ''; }
+            if (modalFrame) { modalFrame.src = docSrc; modalFrame.style.display = 'block'; }
+        } else {
+            if (modalFrame) { modalFrame.style.display = 'none'; modalFrame.src = ''; }
+            if (modalImg) { modalImg.src = docSrc; modalImg.style.display = 'block'; }
+        }
+
+        if (docModal) docModal.style.display = 'flex';
+    }
+
     function bindModalTrigger(button) {
         if (!button) return;
         button.addEventListener('click', (e) => {
             e.preventDefault();
             const docSrc = button.getAttribute('data-doc');
             const docTitle = button.getAttribute('data-title') || 'Document View';
-
-            if (!docSrc) return;
-
-            if (modalTitle) modalTitle.textContent = docTitle;
-
-            const isPdf = button.getAttribute('data-doc-type') === 'application/pdf' ||
-                docSrc.toLowerCase().includes('.pdf') ||
-                (docSrc.startsWith('blob:') && button.closest('.compact-doc-card')?.querySelector('.fa-file-pdf'));
-
-            if (isPdf) {
-                if (modalImg) { modalImg.style.display = 'none'; modalImg.src = ''; }
-                if (modalFrame) { modalFrame.src = docSrc; modalFrame.style.display = 'block'; }
-            } else {
-                if (modalFrame) { modalFrame.style.display = 'none'; modalFrame.src = ''; }
-                if (modalImg) { modalImg.src = docSrc; modalImg.style.display = 'block'; }
-            }
-
-            if (docModal) docModal.style.display = 'flex';
+            const docType = button.getAttribute('data-doc-type') || '';
+            const fileName = docTitle;
+            openDocumentPreview(docSrc, docTitle, docType, fileName);
         });
     }
 
@@ -351,47 +348,471 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 4. ACHIEVEMENT TAB FILTERING & INDIVIDUAL DELETION
-    const tabBtns = getAll('.tab-btn');
-    const achievementsGrid = getEl('achievementsGrid');
+    // 4. CERTIFICATE STATUS AND PERSISTENT FILE STORAGE
+    const courseCertifications = [
+        { id: 'excel-uipath', title: 'Excel Automation with the Modern Experience in Studio (v2024.10)', provider: 'UiPath', issueDate: 'Issued Apr 2026', logo: 'uipath.png' },
+        { id: 'prompt-ibm', title: 'Mastering in Prompt', provider: 'IBM', issueDate: 'Issued Apr 2026', logo: 'ibm.png' },
+        { id: 'controlflow-uipath', title: 'Control Flow in Studio (v2024.10)', provider: 'UiPath', issueDate: 'Issued Apr 2026', logo: 'uipath.png' },
+        { id: 'py-structures-coursera', title: 'Python Data Structures', provider: 'Coursera', issueDate: 'Issued Jul 2025', logo: 'coursera.png' },
+        { id: 'py-everybody-coursera', title: 'Programming for Everybody (Getting Started with Python)', provider: 'Coursera', issueDate: 'Issued Jul 2025', logo: 'coursera.png' }
+    ];
+    const certificateMetadataKey = 'uploaded_certificates';
+    const customCoursesKey = 'dynamic_custom_courses';
+    const certificateDatabaseName = 'portfolio-certificate-files';
+    const allowedCourseLogos = new Set(['uipath.png', 'ibm.png', 'coursera.png', 'favicon.png']);
+    const defaultCourseLogo = 'favicon.png';
 
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+    function isAllowedCourseLogo(logo) {
+        if (allowedCourseLogos.has(logo)) return true;
+        try {
+            const logoUrl = new URL(logo);
+            if (logoUrl.protocol !== 'https:' || logoUrl.hash) return false;
+            if (logoUrl.hostname === 'logo.clearbit.com') {
+                return /^\/[a-z0-9.-]+$/i.test(logoUrl.pathname) && !logoUrl.search;
+            }
+            if (logoUrl.hostname === 'www.google.com' && logoUrl.pathname === '/s2/favicons') {
+                const domain = logoUrl.searchParams.get('domain');
+                return Boolean(domain && /^[a-z0-9.-]+$/i.test(domain) &&
+                    logoUrl.searchParams.get('sz') === '128' &&
+                    [...logoUrl.searchParams.keys()].every(key => key === 'domain' || key === 'sz'));
+            }
+            return false;
+        } catch {
+            return false;
+        }
+    }
 
-            const category = btn.getAttribute('data-tab');
+    function getStoredCustomCourses() {
+        const serialized = localStorage.getItem(customCoursesKey);
+        if (!serialized) return [];
 
-            getAll('.achievement-card').forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+        try {
+            const courses = JSON.parse(serialized);
+            if (!Array.isArray(courses)) throw new Error('Custom course data must be a list.');
+            return courses.filter(course =>
+                course &&
+                typeof course.id === 'string' &&
+                /^custom-[a-z0-9-]{1,100}$/i.test(course.id) &&
+                course.id.startsWith('custom-') &&
+                typeof course.title === 'string' &&
+                typeof course.provider === 'string' &&
+                typeof course.issueDate === 'string' &&
+                isAllowedCourseLogo(course.logo)
+            );
+        } catch (error) {
+            console.error('Unable to read saved custom courses:', error);
+            setUploadFeedback('Saved custom courses could not be read. Check browser storage before adding another course.', 'error');
+            return [];
+        }
+    }
+
+    const builtInCourseCertifications = [...courseCertifications];
+    const storedCustomCourses = getStoredCustomCourses();
+    courseCertifications.push(...storedCustomCourses);
+    const courseCertificationIds = new Set(courseCertifications.map(course => course.id));
+
+    function setUploadFeedback(message, state = '') {
+        const feedback = getEl('uploadFeedback');
+        if (!feedback) return;
+        feedback.textContent = message;
+        feedback.classList.toggle('is-error', state === 'error');
+        feedback.classList.toggle('is-success', state === 'success');
+    }
+
+    function getStoredCertificates() {
+        const serialized = localStorage.getItem(certificateMetadataKey);
+        if (!serialized) return {};
+
+        try {
+            const certificates = JSON.parse(serialized);
+            if (!certificates || typeof certificates !== 'object' || Array.isArray(certificates)) {
+                throw new Error('Certificate status data has an invalid format.');
+            }
+            return certificates;
+        } catch (error) {
+            console.error('Unable to read saved certificate statuses:', error);
+            setUploadFeedback('Saved certificate statuses could not be read. Re-upload certificates to restore them.', 'error');
+            return {};
+        }
+    }
+
+    function renderUploadStatuses() {
+        const certificates = getStoredCertificates();
+        courseCertifications.forEach(({ id }) => {
+            const statusContainer = getEl(`status-${id}`);
+            if (!statusContainer) return;
+            statusContainer.replaceChildren();
+
+            const certificate = certificates[id];
+            if (!certificate || certificate.status !== 'Uploaded Successful') return;
+
+            const badge = document.createElement('span');
+            badge.className = 'status-badge uploaded';
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-circle-check';
+            icon.setAttribute('aria-hidden', 'true');
+            badge.append(icon, document.createTextNode(' Uploaded Successful'));
+            statusContainer.append(badge);
         });
-    });
+    }
 
-    if (achievementsGrid) {
-        achievementsGrid.addEventListener('click', (e) => {
-            const deleteBtn = e.target.closest('.delete-single-btn');
-            if (deleteBtn) {
-                const card = deleteBtn.closest('.achievement-card');
-                if (card && confirm('Are you sure you want to delete this achievement card?')) {
-                    card.remove();
+    function bindCertificateView(button, course) {
+        button.addEventListener('click', async () => {
+            const certificates = getStoredCertificates();
+            const certificate = certificates[course.id];
+            if (!certificate || certificate.status !== 'Uploaded Successful') {
+                alert('Certificate document has not been uploaded yet.');
+                return;
+            }
+
+            try {
+                const savedFile = await readCertificateFile(course.id);
+                if (!savedFile?.blob) {
+                    throw new Error('The saved certificate file is missing. Please upload it again.');
                 }
+                const fileUrl = createSafeObjectURL(savedFile.blob);
+                openDocumentPreview(fileUrl, course.title, savedFile.fileType, savedFile.fileName);
+            } catch (error) {
+                console.error(`Unable to open certificate "${course.id}":`, error);
+                alert(error instanceof Error ? error.message : 'Could not open this certificate. Please try again.');
             }
         });
     }
 
+    function renderCustomCourse(course) {
+        const grid = document.querySelector('.courses-grid');
+        if (!grid || Array.from(grid.querySelectorAll('.course-card'))
+            .some(card => card.dataset.courseId === course.id)) return;
+
+        const card = document.createElement('article');
+        card.className = 'course-card';
+        card.dataset.courseId = course.id;
+
+        const header = document.createElement('div');
+        header.className = 'course-card-header';
+
+        const logo = document.createElement('img');
+        logo.className = 'provider-logo';
+        logo.src = course.logo;
+        logo.alt = `${course.provider} logo`;
+        logo.loading = 'lazy';
+        logo.dataset.logoDomain = course.logo.startsWith('https://logo.clearbit.com/')
+            ? course.logo.split('/').pop()
+            : '';
+        logo.addEventListener('error', () => {
+            const domain = logo.dataset.logoDomain;
+            if (domain) {
+                logo.dataset.logoDomain = '';
+                logo.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+                return;
+            }
+            logo.src = defaultCourseLogo;
+        });
+
+        const status = document.createElement('span');
+        status.className = 'upload-status';
+        status.id = `status-${course.id}`;
+        status.setAttribute('aria-live', 'polite');
+
+        const headerActions = document.createElement('div');
+        headerActions.className = 'card-header-actions';
+        headerActions.append(status);
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-delete-course custom-course-delete';
+        deleteButton.title = 'Delete custom course';
+        deleteButton.setAttribute('aria-label', `Delete ${course.title}`);
+        deleteButton.hidden = !isAdminMode();
+        const deleteIcon = document.createElement('i');
+        deleteIcon.className = 'fa-solid fa-trash-can';
+        deleteIcon.setAttribute('aria-hidden', 'true');
+        deleteButton.append(deleteIcon);
+        deleteButton.addEventListener('click', () => deleteCustomCourse(course.id));
+        headerActions.append(deleteButton);
+        header.append(logo, headerActions);
+
+        const body = document.createElement('div');
+        body.className = 'course-body';
+        const providerTag = document.createElement('span');
+        providerTag.className = 'provider-tag';
+        providerTag.textContent = `${course.provider} Certified`;
+
+        const title = document.createElement('h3');
+        title.className = 'course-title';
+        title.textContent = course.title;
+
+        const issueDate = document.createElement('p');
+        issueDate.className = 'issue-date';
+        const dateIcon = document.createElement('i');
+        dateIcon.className = 'fa-regular fa-calendar';
+        dateIcon.setAttribute('aria-hidden', 'true');
+        issueDate.append(dateIcon, document.createTextNode(` ${course.issueDate}`));
+
+        const viewButton = document.createElement('button');
+        viewButton.type = 'button';
+        viewButton.className = 'btn-view-cert';
+        viewButton.dataset.courseId = course.id;
+        viewButton.append('View ');
+        const expandIcon = document.createElement('i');
+        expandIcon.className = 'fa-solid fa-expand';
+        expandIcon.setAttribute('aria-hidden', 'true');
+        viewButton.append(expandIcon);
+        bindCertificateView(viewButton, course);
+
+        body.append(providerTag, title, issueDate, viewButton);
+        card.append(header, body);
+        grid.append(card);
+        renderUploadStatuses();
+    }
+
+    storedCustomCourses.forEach(renderCustomCourse);
+
+    function syncCustomCourseAdminControls() {
+        const showDelete = isAdminMode();
+        getAll('.custom-course-delete').forEach(button => {
+            button.hidden = !showDelete;
+        });
+    }
+
+    function syncCustomCourses() {
+        const customCourses = getStoredCustomCourses();
+        const customCourseIds = new Set(customCourses.map(course => course.id));
+
+        getAll('.course-card[data-course-id^="custom-"]').forEach(card => {
+            if (!customCourseIds.has(card.dataset.courseId)) card.remove();
+        });
+
+        courseCertifications.splice(0, courseCertifications.length, ...builtInCourseCertifications, ...customCourses);
+        courseCertificationIds.clear();
+        courseCertifications.forEach(course => courseCertificationIds.add(course.id));
+        customCourses.forEach(renderCustomCourse);
+        renderUploadStatuses();
+        syncCustomCourseAdminControls();
+    }
+
+    const adminCourseObserver = new MutationObserver(syncCustomCourseAdminControls);
+    adminCourseObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    function openCertificateDatabase() {
+        return new Promise((resolve, reject) => {
+            if (!window.indexedDB) {
+                reject(new Error('This browser does not support persistent certificate storage.'));
+                return;
+            }
+
+            const request = window.indexedDB.open(certificateDatabaseName, 1);
+            request.onupgradeneeded = () => {
+                const database = request.result;
+                if (!database.objectStoreNames.contains('certificates')) {
+                    database.createObjectStore('certificates');
+                }
+            };
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error || new Error('Could not open certificate storage.'));
+            request.onblocked = () => reject(new Error('Certificate storage is blocked by another open page.'));
+        });
+    }
+
+    async function storeCertificateFile(courseId, file) {
+        const database = await openCertificateDatabase();
+        return new Promise((resolve, reject) => {
+            const transaction = database.transaction('certificates', 'readwrite');
+            transaction.objectStore('certificates').put({
+                blob: file,
+                fileName: file.name,
+                fileType: file.type
+            }, courseId);
+            transaction.oncomplete = () => {
+                database.close();
+                resolve();
+            };
+            transaction.onerror = () => {
+                database.close();
+                reject(transaction.error || new Error('Could not save the certificate file.'));
+            };
+            transaction.onabort = () => {
+                database.close();
+                reject(transaction.error || new Error('Certificate file storage was interrupted.'));
+            };
+        });
+    }
+
+    async function readCertificateFile(courseId) {
+        const database = await openCertificateDatabase();
+        return new Promise((resolve, reject) => {
+            const transaction = database.transaction('certificates', 'readonly');
+            const request = transaction.objectStore('certificates').get(courseId);
+            let certificateFile;
+            request.onsuccess = () => { certificateFile = request.result; };
+            transaction.oncomplete = () => {
+                database.close();
+                resolve(certificateFile);
+            };
+            transaction.onerror = () => {
+                database.close();
+                reject(transaction.error || new Error('Could not read the certificate file.'));
+            };
+            transaction.onabort = () => {
+                database.close();
+                reject(transaction.error || new Error('Certificate file reading was interrupted.'));
+            };
+        });
+    }
+
+    async function deleteCertificateFile(courseId) {
+        const database = await openCertificateDatabase();
+        return new Promise((resolve, reject) => {
+            const transaction = database.transaction('certificates', 'readwrite');
+            transaction.objectStore('certificates').delete(courseId);
+            transaction.oncomplete = () => {
+                database.close();
+                resolve();
+            };
+            transaction.onerror = () => {
+                database.close();
+                reject(transaction.error || new Error('Could not delete the certificate file.'));
+            };
+            transaction.onabort = () => {
+                database.close();
+                reject(transaction.error || new Error('Certificate deletion was interrupted.'));
+            };
+        });
+    }
+
+    async function deleteCustomCourse(courseId) {
+        if (!isAdminMode()) {
+            alert('Only the site administrator can delete a custom course.');
+            return;
+        }
+        if (!/^custom-[a-z0-9-]{1,100}$/i.test(courseId)) {
+            alert('This custom course has an invalid identifier and cannot be deleted.');
+            return;
+        }
+        if (!window.confirm('Are you sure you want to delete this course certification?')) return;
+
+        try {
+            await deleteCertificateFile(courseId);
+            const certificates = getStoredCertificates();
+            delete certificates[courseId];
+            localStorage.setItem(certificateMetadataKey, JSON.stringify(certificates));
+            const customCourses = getStoredCustomCourses().filter(course => course.id !== courseId);
+            localStorage.setItem(customCoursesKey, JSON.stringify(customCourses));
+            syncCustomCourses();
+            setUploadFeedback('Custom course deleted.', 'success');
+        } catch (error) {
+            console.error(`Unable to delete custom course "${courseId}":`, error);
+            alert(error instanceof Error ? `Could not delete course: ${error.message}` : 'Could not delete this course.');
+        }
+    }
+
+    renderUploadStatuses();
+    window.addEventListener('storage', (event) => {
+        if (event.key === certificateMetadataKey) renderUploadStatuses();
+        if (event.key === customCoursesKey) syncCustomCourses();
+    });
+
+    getAll('.btn-view-cert').forEach(button => {
+        const course = courseCertifications.find(item => item.id === button.getAttribute('data-course-id'));
+        if (course) bindCertificateView(button, course);
+    });
+
     // 5. FILE UPLOAD CATEGORY UI SELECTOR
     const docCategorySelect = getEl('docCategorySelect');
-    const metaFields = getEl('metaFields');
+    const customCourseFields = getEl('customCourseFields');
+    const newCourseTitleInput = getEl('newCourseTitle');
+    const newProviderInput = getEl('newProvider');
+    const newIssueDateInput = getEl('newIssueDate');
+    const logoSearchInput = getEl('logoSearchInput');
+    const logoPreviewImg = getEl('logoPreviewImg');
+    let currentResolvedLogoUrl = defaultCourseLogo;
 
-    if (docCategorySelect && metaFields) {
-        docCategorySelect.addEventListener('change', (e) => {
-            const selected = e.target.value;
-            metaFields.style.display = (selected === 'courses' || selected === 'sports') ? 'block' : 'none';
+    function toggleCustomCourseFields(value) {
+        const isCustomCourse = value === 'new-course';
+        if (customCourseFields) customCourseFields.hidden = !isCustomCourse;
+        [newCourseTitleInput, newProviderInput, newIssueDateInput].forEach(input => {
+            if (input) input.required = isCustomCourse;
+        });
+    }
+
+    if (docCategorySelect) {
+        docCategorySelect.addEventListener('change', () => {
+            toggleCustomCourseFields(docCategorySelect.value);
+            if (fileInput) {
+                fileInput.accept = courseCertificationIds.has(docCategorySelect.value) || docCategorySelect.value === 'new-course'
+                    ? '.pdf,.png,.jpg,.jpeg'
+                    : '.pdf,.png,.jpg,.jpeg,.doc,.docx';
+            }
+            selectedFile = null;
+            if (fileInput) fileInput.value = '';
+            if (fileDetails) fileDetails.style.display = 'none';
+            if (uploadSubmitBtn) uploadSubmitBtn.disabled = true;
+            setUploadFeedback('');
+        });
+    }
+    toggleCustomCourseFields(docCategorySelect?.value || '');
+
+    function searchAndPreviewLogo(query) {
+        const cleanQuery = query.trim().toLowerCase();
+        currentResolvedLogoUrl = defaultCourseLogo;
+
+        if (!cleanQuery) {
+            if (logoPreviewImg) {
+                logoPreviewImg.dataset.logoRequestUrl = '';
+                logoPreviewImg.dataset.logoFallbackUrl = '';
+                logoPreviewImg.src = defaultCourseLogo;
+            }
+            return;
+        }
+
+        let domain = cleanQuery;
+        if (/^https?:\/\//i.test(domain)) {
+            try {
+                domain = new URL(domain).hostname;
+            } catch {
+                domain = '';
+            }
+        }
+        domain = domain.replace(/^www\./, '').replace(/\s+/g, '');
+        if (!domain.includes('.')) domain += '.com';
+        if (!/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i.test(domain)) {
+            if (logoPreviewImg) {
+                logoPreviewImg.dataset.logoRequestUrl = '';
+                logoPreviewImg.dataset.logoFallbackUrl = '';
+                logoPreviewImg.src = defaultCourseLogo;
+            }
+            return;
+        }
+
+        const logoUrl = `https://logo.clearbit.com/${encodeURIComponent(domain)}`;
+        currentResolvedLogoUrl = logoUrl;
+        if (logoPreviewImg) {
+            logoPreviewImg.dataset.logoRequestUrl = logoUrl;
+            logoPreviewImg.dataset.logoFallbackUrl =
+                `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+            logoPreviewImg.src = logoUrl;
+        }
+    }
+
+    if (logoSearchInput) {
+        logoSearchInput.addEventListener('input', () => searchAndPreviewLogo(logoSearchInput.value));
+    }
+
+    if (logoPreviewImg) {
+        logoPreviewImg.addEventListener('error', () => {
+            const failedUrl = logoPreviewImg.dataset.logoRequestUrl;
+            if (!failedUrl || logoPreviewImg.src !== failedUrl) return;
+            const fallbackUrl = logoPreviewImg.dataset.logoFallbackUrl;
+            if (fallbackUrl && failedUrl !== fallbackUrl) {
+                currentResolvedLogoUrl = fallbackUrl;
+                logoPreviewImg.dataset.logoRequestUrl = fallbackUrl;
+                logoPreviewImg.dataset.logoFallbackUrl = '';
+                logoPreviewImg.src = fallbackUrl;
+                return;
+            }
+            currentResolvedLogoUrl = defaultCourseLogo;
+            logoPreviewImg.dataset.logoRequestUrl = '';
+            logoPreviewImg.dataset.logoFallbackUrl = '';
+            logoPreviewImg.src = defaultCourseLogo;
         });
     }
 
@@ -469,10 +890,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressBar = getEl('progressBar');
     const removeFileBtn = getEl('removeFileBtn');
     const uploadSubmitBtn = getEl('uploadSubmitBtn');
-    const certTitleInput = getEl('certTitleInput');
 
     let selectedFile = null;
-    const isAdminMode = () => document.body.classList.contains('is-admin') || localStorage.getItem('isAdmin') === 'true';
     const denyPublicUpload = () => {
         if (isAdminMode()) return false;
         alert('Unauthorized action: Document uploads are restricted to the site owner.');
@@ -530,6 +949,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleFileSelection(file) {
         if (denyPublicUpload()) return;
 
+        const category = docCategorySelect?.value || '';
+        if (!category) {
+            alert('Select a course or document type before choosing a file.');
+            if (fileInput) fileInput.value = '';
+            return;
+        }
+
+        const isCourseCertificate = courseCertificationIds.has(category) || category === 'new-course';
+        const certificateFileExtension = /\.(pdf|png|jpe?g)$/i.test(file.name);
+        if (isCourseCertificate && !certificateFileExtension) {
+            alert('Course certificates must be PDF, PNG, or JPG files.');
+            if (fileInput) fileInput.value = '';
+            return;
+        }
+
         const allowedTypes = [
             'application/pdf',
             'image/png',
@@ -577,21 +1011,106 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (uploadSubmitBtn) {
-        uploadSubmitBtn.addEventListener('click', () => {
+        uploadSubmitBtn.addEventListener('click', async () => {
             if (denyPublicUpload()) return;
             if (!selectedFile) return;
 
-            const category = docCategorySelect ? docCategorySelect.value : 'general';
-            const fileUrl = createSafeObjectURL(selectedFile);
-            const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
+            const category = docCategorySelect?.value || '';
+            if (!category) {
+                setUploadFeedback('Select a course or document type before uploading.', 'error');
+                return;
+            }
 
-            if (category === 'resume') {
+            let fileUrl = '';
+            let customCourse = null;
+            if (category === 'new-course') {
+                const title = newCourseTitleInput?.value.trim() || '';
+                const provider = newProviderInput?.value.trim() || '';
+                const issueDate = newIssueDateInput?.value.trim() || '';
+                const logo = currentResolvedLogoUrl;
+
+                if (!title || !provider || !issueDate) {
+                    setUploadFeedback('Enter a course title, provider, and issue date.', 'error');
+                    return;
+                }
+                if (!isAllowedCourseLogo(logo)) {
+                    setUploadFeedback('Enter a valid brand name or domain for the provider logo.', 'error');
+                    return;
+                }
+
+                const uniqueSuffix = window.crypto?.randomUUID
+                    ? window.crypto.randomUUID()
+                    : Math.random().toString(36).slice(2);
+                const courseId = `custom-${Date.now()}-${uniqueSuffix}`;
+                customCourse = { id: courseId, title, provider, issueDate, logo };
+            }
+
+            if (courseCertificationIds.has(category) || customCourse) {
+                const course = customCourse || courseCertifications.find(item => item.id === category);
+                if (!course || !/\.(pdf|png|jpe?g)$/i.test(selectedFile.name)) {
+                    setUploadFeedback('Choose a PDF, PNG, or JPG file for the selected course.', 'error');
+                    return;
+                }
+
+                uploadSubmitBtn.disabled = true;
+                setUploadFeedback('Saving certificate...');
+                try {
+                    const courseId = course.id;
+                    await storeCertificateFile(courseId, selectedFile);
+                    if (customCourse) {
+                        const customCourses = getStoredCustomCourses();
+                        customCourses.push(customCourse);
+                        localStorage.setItem(customCoursesKey, JSON.stringify(customCourses));
+                        courseCertifications.push(customCourse);
+                        courseCertificationIds.add(courseId);
+                    }
+                    const certificates = getStoredCertificates();
+                    certificates[courseId] = {
+                        fileName: selectedFile.name,
+                        fileType: selectedFile.type,
+                        uploadedAt: new Date().toLocaleDateString(),
+                        status: 'Uploaded Successful'
+                    };
+                    localStorage.setItem(certificateMetadataKey, JSON.stringify(certificates));
+                    if (customCourse) renderCustomCourse(customCourse);
+                    renderUploadStatuses();
+                    setUploadFeedback(`${course.title} uploaded successfully.`, 'success');
+                    if (customCourse) {
+                        if (docCategorySelect) docCategorySelect.value = '';
+                        toggleCustomCourseFields('');
+                        if (newCourseTitleInput) newCourseTitleInput.value = '';
+                        if (newProviderInput) newProviderInput.value = '';
+                        if (newIssueDateInput) newIssueDateInput.value = '';
+                        if (logoSearchInput) logoSearchInput.value = '';
+                        searchAndPreviewLogo('');
+                    }
+                    if (fileInput) fileInput.value = '';
+                    selectedFile = null;
+                    if (fileDetails) fileDetails.style.display = 'none';
+                    uploadSubmitBtn.disabled = true;
+                    return;
+                } catch (error) {
+                    console.error(`Unable to save certificate "${category}":`, error);
+                    setUploadFeedback(
+                        `Certificate upload failed: ${error instanceof Error ? error.message : 'Unknown storage error.'}`,
+                        'error'
+                    );
+                    uploadSubmitBtn.disabled = false;
+                    return;
+                }
+            } else if (category === 'resume') {
+                fileUrl = createSafeObjectURL(selectedFile);
                 localStorage.setItem('userResumeUrl', fileUrl);
                 localStorage.setItem('userResumeUrl_type', selectedFile.type);
                 syncResumeButton();
+            } else {
+                setUploadFeedback('Select one of the listed courses or the resume option.', 'error');
+                return;
             }
 
-            if ((category === 'resume' || category === 'general') && attachedDocsGrid) {
+            const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+            if (category === 'resume' && attachedDocsGrid) {
                 let iconClass = 'fa-file-pdf';
                 if (selectedFile.type.startsWith('image/')) iconClass = 'fa-file-image';
                 else if (selectedFile.name.match(/\.(doc|docx)$/i)) iconClass = 'fa-file-word';
@@ -632,37 +1151,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     cvDisplaySection.scrollIntoView({ behavior: 'smooth' });
                 }
                 updateSelectionState();
-                alert(category === 'resume' ? 'Resume updated successfully!' : `"${selectedFile.name}" attached successfully!`);
-            }
-            else if ((category === 'courses' || category === 'sports') && achievementsGrid) {
-                const title = (certTitleInput && certTitleInput.value.trim()) ? certTitleInput.value.trim() : `${category === 'courses' ? 'Course' : 'Sports'} Certificate`;
-                const iconClass = category === 'courses' ? 'fa-certificate' : 'fa-trophy';
-
-                const newCard = document.createElement('div');
-                newCard.className = 'achievement-card';
-                newCard.setAttribute('data-category', category);
-                newCard.innerHTML = `
-                    <div class="achievement-icon"><i class="fa-solid ${iconClass}"></i></div>
-                    <div class="achievement-content">
-                        <span class="cert-date">${category === 'courses' ? 'Course Certificate' : 'Sports Achievement'}</span>
-                        <h3>${title}</h3>
-                        <p>Attached File: ${selectedFile.name}</p>
-                        <div class="achievement-card-actions">
-                            <button class="btn btn-outline btn-sm view-doc-btn" data-doc="${fileUrl}" data-title="${title}">View <i class="fa-solid fa-expand"></i></button>
-                            <button class="btn btn-danger-icon btn-sm delete-single-btn" title="Delete Achievement"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-                    </div>
-                `;
-
-                achievementsGrid.prepend(newCard);
-                bindModalTrigger(newCard.querySelector('.view-doc-btn'));
-
-                alert(`New ${category === 'courses' ? 'Course' : 'Sports'} Certificate added successfully!`);
+                setUploadFeedback('Resume updated successfully.', 'success');
             }
 
             if (fileInput) fileInput.value = '';
             selectedFile = null;
-            if (certTitleInput) certTitleInput.value = '';
             if (fileDetails) fileDetails.style.display = 'none';
             uploadSubmitBtn.disabled = true;
         });
@@ -1216,6 +1709,126 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiChatMessages = getEl('aiChatMessages');
     const aiChatForm = getEl('aiChatForm');
     const aiChatInput = getEl('aiChatInput');
+    const aiRobotSpeech = getEl('aiRobotSpeech');
+    let robotThankYouTimer;
+
+    function resetOmexConversation() {
+        if (!aiChatMessages) return;
+
+        aiChatMessages.querySelectorAll('.ai-chat-row').forEach((row, index) => {
+            if (index > 0) row.remove();
+        });
+        if (aiChatInput) aiChatInput.value = '';
+        if (aiChatPanel) {
+            aiChatPanel.classList.remove('is-open');
+            aiChatPanel.style.display = 'none';
+            aiChatPanel.setAttribute('aria-hidden', 'true');
+        }
+        aiChatToggle?.setAttribute('aria-expanded', 'false');
+        aiChatToggle?.setAttribute('aria-label', 'Open AI assistant');
+        aiChatToggle?.classList.remove('is-chat-open', 'is-thanking');
+    }
+
+    resetOmexConversation();
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) resetOmexConversation();
+    });
+
+    function normalizeOmexQuery(text) {
+        return String(text).toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function editDistance(first, second) {
+        const distances = Array.from({ length: first.length + 1 }, (_, index) => [index]);
+        for (let column = 0; column <= second.length; column += 1) {
+            distances[0][column] = column;
+        }
+
+        for (let row = 1; row <= first.length; row += 1) {
+            for (let column = 1; column <= second.length; column += 1) {
+                const substitutionCost = first[row - 1] === second[column - 1] ? 0 : 1;
+                distances[row][column] = Math.min(
+                    distances[row - 1][column] + 1,
+                    distances[row][column - 1] + 1,
+                    distances[row - 1][column - 1] + substitutionCost
+                );
+            }
+        }
+
+        return distances[first.length][second.length];
+    }
+
+    function matchesOmexTopic(query, terms) {
+        const words = query.split(' ');
+        return terms.some((term) => {
+            if (term.includes(' ') ? query.includes(term) : words.includes(term)) return true;
+            if (/^\d/.test(term)) return false;
+            return words.some((word) => word.length >= 4 && !/^\d/.test(word) && editDistance(word, term) <= 1);
+        });
+    }
+
+    function getOmexTimeGreeting() {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return 'Good morning';
+        if (hour >= 12 && hour < 17) return 'Good afternoon';
+        if (hour >= 17 && hour < 22) return 'Good evening';
+        return 'Hello, night owl';
+    }
+
+    function appendLocalTimestamp(messageElement) {
+        const now = new Date();
+        const time = document.createElement('time');
+        time.className = 'ai-chat-timestamp';
+        time.dateTime = now.toISOString();
+        time.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        messageElement.appendChild(time);
+    }
+
+    aiChatMessages?.querySelectorAll('.ai-message-bot').forEach((message) => appendLocalTimestamp(message));
+
+    function getOmexResponse(userText) {
+        const query = normalizeOmexQuery(userText);
+
+        if (/\b(who are you|your name|what is your name)\b/.test(query) ||
+            matchesOmexTopic(query, ['identity'])) {
+            return "I'm Omex, your friendly portfolio assistant. I can answer questions about Om Prakash's education, skills, projects, and contact details.";
+        }
+
+        if (matchesOmexTopic(query, ['interview', 'hire', 'hiring', 'meet', 'schedule', 'call', 'contact', 'talk', 'touch', 'reach', 'email'])) {
+            return 'To contact Om Prakash about an interview or opportunity, use the Contact section at the bottom of the page.';
+        }
+
+        if (matchesOmexTopic(query, ['school', 'college', 'university', 'study', 'studying', 'education', 'academic', 'grade', 'degree', 'bca', 'christ', 'claret', 'tapovan', '10th', '12th', 'percentage', 'marks', 'score', 'result'])) {
+            if (matchesOmexTopic(query, ['10th', 'secondary', 'claret', 'nagpur'])) {
+                return 'Om Prakash completed 10th Grade at St. Claret School in Butibori, Nagpur, in 2022 with a score of 62%.';
+            }
+            if (matchesOmexTopic(query, ['12th', 'commerce', 'tapovan', 'mehsana', 'gujarat'])) {
+                return 'Om Prakash completed 12th Grade (Commerce) at Tapovan International School in Mehsana, Gujarat, in 2024 with a score of 71%.';
+            }
+            if (matchesOmexTopic(query, ['percentage', 'marks', 'score', 'result'])) {
+                return 'Om Prakash scored 62% in 10th Grade at St. Claret School and 71% in 12th Grade (Commerce) at Tapovan International School. He is pursuing a BCA at CHRIST University.';
+            }
+            return 'Om Prakash is a third-year BCA student at CHRIST University, Lavasa, Pune, with a passing year of 2027. He completed 12th Grade (Commerce) at Tapovan International School (71%) and 10th Grade at St. Claret School (62%).';
+        }
+
+        if (matchesOmexTopic(query, ['experience', 'intern', 'internship', 'work', 'mady', 'dnnovate'])) {
+            return 'Om Prakash has completed two internships: Data Scraping & Data Analyst Intern at Mady Solutions in Ghaziabad (May–August 2026), and UI/UX Intern at Dnnovate Pvt Ltd in Nagpur (June–August 2025). At Mady Solutions, he structured business data and analyzed it with Excel Pivot Tables. At Dnnovate, he designed a website and UI wireframes in Figma.';
+        }
+
+        if (matchesOmexTopic(query, ['skill', 'skills', 'technology', 'tech', 'stack', 'language', 'java', 'python', 'kotlin', 'react', 'uipath'])) {
+            return 'Om Prakash works with Next.js, Kotlin, Jetpack Compose, MySQL, UiPath, Figma, JavaScript, Python, Streamlit, and Pandas.';
+        }
+
+        if (matchesOmexTopic(query, ['project', 'projects', 'app', 'website', 'rydex', 'jarwise', 'agridev'])) {
+            return 'Featured projects include RYDEX Management System, JarWise Expense Tracker, and the AgriDev Ecosystem. You can explore them in the Projects section.';
+        }
+
+        if (matchesOmexTopic(query, ['hi', 'hello', 'hey', 'greetings', 'morning', 'evening', 'night'])) {
+            return `${getOmexTimeGreeting()}! I'm Omex. How can I help you explore Om Prakash's work or background today?`;
+        }
+
+        return "I'm Omex! I can help with Om Prakash's education and scores, internships, projects, skills, or how to get in touch.";
+    }
 
     function openAiChat() {
         if (!aiChatPanel) {
@@ -1223,29 +1836,55 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        console.info('Portfolio AI: opening chat widget.');
+        console.info('Omex: opening assistant.');
         aiChatPanel.classList.add('is-open');
         aiChatPanel.style.display = 'flex';
         aiChatPanel.setAttribute('aria-hidden', 'false');
         aiChatToggle?.setAttribute('aria-expanded', 'true');
+        aiChatToggle?.setAttribute('aria-label', 'Close AI assistant');
+        aiChatToggle?.classList.add('is-chat-open');
+        aiChatToggle?.classList.remove('is-thanking');
+        if (robotThankYouTimer) window.clearTimeout(robotThankYouTimer);
         window.setTimeout(() => aiChatInput?.focus(), 100);
     }
 
     function closeAiChat() {
         if (!aiChatPanel) return;
 
-        console.info('Portfolio AI: closing chat widget.');
+        console.info('Omex: closing assistant.');
         aiChatPanel.classList.remove('is-open');
         aiChatPanel.style.display = 'none';
         aiChatPanel.setAttribute('aria-hidden', 'true');
         aiChatToggle?.setAttribute('aria-expanded', 'false');
+        aiChatToggle?.setAttribute('aria-label', 'Open AI assistant');
+        aiChatToggle?.classList.remove('is-chat-open');
+        aiChatToggle?.classList.add('is-thanking');
+        if (aiRobotSpeech) aiRobotSpeech.textContent = 'Thank you! 💖';
+        if (robotThankYouTimer) window.clearTimeout(robotThankYouTimer);
+        robotThankYouTimer = window.setTimeout(() => {
+            if (aiRobotSpeech) aiRobotSpeech.textContent = 'Use Me! ✨';
+            aiChatToggle?.classList.remove('is-thanking');
+        }, 3000);
     }
 
     function appendAiMessage(text, type, extraClass = '') {
         const message = document.createElement('div');
         message.className = `ai-message ai-message-${type} ${extraClass}`.trim();
         message.textContent = text;
-        aiChatMessages.appendChild(message);
+        const row = document.createElement('div');
+        row.className = `ai-chat-row ai-chat-row-${type}`;
+
+        if (type === 'bot') {
+            const avatar = document.createElement('div');
+            avatar.className = 'ai-bot-avatar';
+            avatar.setAttribute('aria-hidden', 'true');
+            avatar.innerHTML = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="22" width="60" height="48" rx="12" fill="#1e1b4b" stroke="#818cf8" stroke-width="6"/><circle cx="38" cy="42" r="7" fill="#67e8f9"/><circle cx="62" cy="42" r="7" fill="#67e8f9"/><path d="M 38 54 Q 50 64 62 54" fill="none" stroke="#a5b4fc" stroke-width="5" stroke-linecap="round"/></svg>';
+            row.appendChild(avatar);
+        }
+
+        if (type === 'bot') appendLocalTimestamp(message);
+        row.appendChild(message);
+        aiChatMessages.appendChild(row);
         aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
         return message;
     }
@@ -1259,23 +1898,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (aiChatInput) aiChatInput.value = '';
 
         window.setTimeout(() => {
-            const query = message.toLowerCase();
-            let reply;
-
-            if (query.includes('project') || query.includes('work')) {
-                reply = 'Om Prakash has developed the RYDEX Management System, JarWise Expense Tracker, and AgriDev platform. Explore the Projects section to see them.';
-            } else if (query.includes('skill') || query.includes('tech') || query.includes('stack') || query.includes('language')) {
-                reply = 'Core skills include Next.js, JavaScript, Figma, Kotlin, Jetpack Compose, Spring Boot, MySQL, and UiPath automation.';
-            } else if (query.includes('contact') || query.includes('touch') || query.includes('email') || query.includes('hire') || query.includes('reach')) {
-                reply = 'You can get in touch through the Contact form at the bottom of this page.';
-            } else if (/\b(hi|hello|hey)\b/.test(query)) {
-                reply = "Hello! I'm Portfolio AI. How can I help you explore Om Prakash's work?";
-            } else {
-                reply = `Thanks for asking about "${message}". Try asking about projects, skills, or contact information.`;
-            }
-
+            const reply = getOmexResponse(message);
             loadingMessage.classList.remove('ai-message-loading');
             loadingMessage.textContent = reply;
+            appendLocalTimestamp(loadingMessage);
             aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
         }, 400);
     }
